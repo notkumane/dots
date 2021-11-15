@@ -1,0 +1,8 @@
+#!/bin/sh
+xrandr -s 1920x1080 &
+unclutter &
+xset -r rate 660 25 &
+conky &
+xcompmgr &
+wal -R &
+
