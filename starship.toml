@@ -1,0 +1,13 @@
+format = """$character"""
+right_format = """$all"""
+
+add_newline = false
+
+[package]
+disabled = true
+
+[character]
+error_symbol = " [](grey)"
+
+[username]
+show_always = true
