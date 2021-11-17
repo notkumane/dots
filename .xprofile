@@ -1,6 +1,6 @@
 #!/bin/sh
 
-xcompmgr &
+picom &
 xset -r rate 660 25 &
 wal -R &
 conky &
