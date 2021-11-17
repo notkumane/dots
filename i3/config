@@ -34,6 +34,7 @@ floating_modifier $mod
 
 # start a terminal
 bindsym $mod+Return exec "$TERMINAL"
+bindsym $mod+Shift+Return exec xfce4-terminal --drop-down
 
 # kill focused window
 bindsym $mod+q kill
@@ -128,6 +129,10 @@ for_window [class=".*"] border pixel 2
 smart_gaps on
 smart_borders on
 gaps inner 12
+
+#control transparency
+bindsym $mod+a exec --no-startup-id picom-trans -c -10
+bindsym $mod+s exec --no-startup-id picom-trans -c +10
 
 # Set colors from Xresources
 set_from_resource $fg i3wm.color7 #f0f0f0
