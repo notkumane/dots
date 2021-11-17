@@ -16,6 +16,3 @@ compinit
 alias ls="exa -la"
 alias install="sudo pacman -Sy"
 alias v="nvim"
-
-source ./zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source /home/notkumane/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
