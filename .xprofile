@@ -1,8 +1,11 @@
 #!/bin/sh
 
-picom &
+xrdb ~/.Xresources &
+xrandr --output HDMI-0 --primary --mode 1920x1080 --rate 143.99 --pos 0x0 --rotate normal --output VGA-0 --mode 1600x900 --pos 1920x0 --rotate normal &
+xcompmgr &
 xset -r rate 660 25 &
-wal -R &
+/usr/lib/xfce4/notifyd/xfce4-notifyd &
+pa-applet --disable-notifications &
 conky &
 unclutter &
-xrandr -s 1920x1080 &
+wal -R &

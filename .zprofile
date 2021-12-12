@@ -1,8 +1,7 @@
 #!/bin/zsh
 #
-export PATH="$PATH:${$(find ~/.local/bin type -d -printf %p:)%%:}"
 export EDITOR="nvim"
-export TERMINAL="terminator"
+export TERMINAL="xfce4-terminal"
 export BROWSER="brave"
 if [ -z "${DISPLAY}" ] && [ "${XDG_VTNR}" -eq 1 ]; then
   exec startx
