@@ -21,5 +21,4 @@ compinit
 alias ls="exa -la"
 alias v="sudo nvim"
 alias rr="nvim ~/.config/i3/config"
-alias clean="sudo pacman -Qtdq | sudo pacman -Rns - "
 source /home/notkumane/Scripts/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
