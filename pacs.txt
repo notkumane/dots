@@ -13,7 +13,6 @@ docbook-xml
 docbook-xsl
 dosfstools
 exa
-faenza-icon-theme
 fakeroot
 feh
 flex
@@ -26,7 +25,6 @@ ghostscript
 git
 glib2-docs
 gnome-disk-utility
-gnome-tweaks
 go
 gobject-introspection
 graphviz
@@ -87,9 +85,6 @@ ocl-icd
 openal
 patch
 patchutils
-pavucontrol
-pcsx2
-picom
 pkgconf
 playerctl
 pulseaudio
