@@ -21,4 +21,5 @@ compinit
 alias ls="exa -la"
 alias v="sudo nvim"
 alias rr="nvim ~/.config/i3/config"
+alias sync="cp .xinitrc .xprofile .zshrc .zprofile ~/GitHub/dots/"
 source /home/notkumane/Scripts/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
