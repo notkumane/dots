@@ -23,8 +23,8 @@ bindsym $mod+Shift+w exec brave --incognito
 bindsym $mod+Return exec "$TERMINAL"
 bindsym $mod+Shift+Return exec xfce4-terminal --drop-down
 #Rofi#
-bindsym $mod+d exec "~/Scripts/rofi.sh"
-bindsym $mod+Shift+d exec rofi -show p -modi p:rofi-power-menu 
+bindsym $mod+d exec "~/.config/rofi/launchers/misc/launcher.sh"
+bindsym $mod+Escape exec "~/.config/rofi/powermenu/powermenu.sh"
 #Font Thingy
 font pango:monospace 8
 

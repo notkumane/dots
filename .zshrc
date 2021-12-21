@@ -1,6 +1,6 @@
 # Lines configured by zsh-newuser-install
-neofetch --ascii ~/Scripts/ascii
 cat /home/notkumane/.cache/wal/sequences
+eval "$(thefuck --alias)"
 eval "$(starship init zsh)"
 HISTFILE=~/.cache/zsh/history
 HISTSIZE=10000
@@ -18,8 +18,9 @@ zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 compinit
 
+alias cf="v ~/.config/conky/conky.conf"
 alias ls="exa -la"
 alias v="sudo nvim"
 alias rr="nvim ~/.config/i3/config"
-alias sync="cp .xinitrc .xprofile .zshrc .zprofile ~/GitHub/dots/"
+alias gitsync="~/Scripts/sync.sh"
 source /home/notkumane/Scripts/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
