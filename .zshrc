@@ -18,7 +18,12 @@ zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 compinit
 
-alias cf="v ~/.config/conky/conky.conf"
+
+function cd {
+    builtin cd "$@" && exa -F
+    }
+
+alias conkyc="v ~/.config/conky/conky.conf"
 alias ls="exa -la"
 alias v="sudo nvim"
 alias rr="nvim ~/.config/i3/config"
