@@ -24,7 +24,7 @@ bindsym $mod+Return exec "$TERMINAL"
 bindsym $mod+Shift+Return exec xfce4-terminal --drop-down
 #Rofi#
 bindsym $mod+d exec "~/.config/rofi/launchers/misc/launcher.sh"
-bindsym $mod+Escape exec "~/.config/rofi/powermenu/powermenu.sh"
+bindsym $mod+Shift+Escape exec poweroff
 #Font Thingy
 font pango:monospace 8
 
@@ -59,13 +59,13 @@ bindsym $mod+Shift+Up move up
 bindsym $mod+Shift+Right move right
 
 #Fullscreen
-bindsym $mod+f fullscreen toggle
+bindsym $mod+Shift+f fullscreen toggle
 
 #Toggle tiling / floating
-bindsym $mod+Shift+f floating toggle
+bindsym $mod+f floating toggle
 
 #Change focus between floating
-#bindsym $mod+space focus mode_toggle
+bindsym $mod+space focus mode_toggle
 
 #Workspaces
 set $ws1 "1"
