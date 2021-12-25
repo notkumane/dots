@@ -1,4 +1,5 @@
 # Lines configured by zsh-newuser-install
+pfetch
 cat /home/notkumane/.cache/wal/sequences
 eval "$(thefuck --alias)"
 eval "$(starship init zsh)"
