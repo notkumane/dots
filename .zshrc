@@ -1,5 +1,4 @@
 # Lines configured by zsh-newuser-install
-pfetch
 cat /home/notkumane/.cache/wal/sequences
 eval "$(thefuck --alias)"
 eval "$(starship init zsh)"
@@ -24,9 +23,10 @@ function cd {
     builtin cd "$@" && exa -F
     }
 
+alias v="sudo nvim"
 alias conkyc="v ~/.config/conky/conky.conf"
 alias ls="exa -la"
-alias v="sudo nvim"
-alias rr="nvim ~/.config/i3/config"
+alias rr="v ~/.config/i3/config"
 alias gitsync="~/Scripts/sync.sh"
+alias steam-game="sh ~/Scripts/gaming.sh"
 source /home/notkumane/Scripts/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh

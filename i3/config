@@ -31,6 +31,7 @@ bindsym XF86Explorer exec thunar
 bindsym XF86HomePage exec "$BROWSER"
 bindsym XF86AudioStop exec playerctl stop
 bindsym XF86AudioPlay exec playerctl play-pause
+bindsym XF86Mail exec $BROWSER https://www.google.com/gmail/
 
 #Use Mouse+$mod to drag floating windows
 floating_modifier $mod
