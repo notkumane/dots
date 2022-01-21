@@ -11,8 +11,7 @@ bindsym $mod+v scratchpad show
 bindsym $mod+x split h
 bindsym $mod+z split v
 #Gaps
-#for_window [class=".*"] border pixel 4
-#border_radius 0
+for_window [class=".*"] border pixel 2
 smart_borders on
 smart_gaps on
 gaps inner 4
