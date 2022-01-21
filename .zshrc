@@ -1,5 +1,5 @@
 # Lines configured by zsh-newuser-install
-cat /home/notkumane/.cache/wal/sequences
+#cat /home/notkumane/.cache/wal/sequences
 eval "$(thefuck --alias)"
 eval "$(starship init zsh)"
 HISTFILE=~/.cache/zsh/history
@@ -23,7 +23,7 @@ compinit
 function cd {
     builtin cd "$@" && exa -F
     }
-alias btw="neofetch --ascii_distro windows"
+alias btw="neofetch"
 alias v="sudo nvim"
 alias conkyc="v ~/.config/conky/conky.conf"
 alias ls="exa -la"
