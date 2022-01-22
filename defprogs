@@ -1,5 +1,6 @@
 starship
 htop
+xorg-xset
 xorg-server
 xorg-xinit
 xorg-xrandr
@@ -34,6 +35,11 @@ spotify
 discord
 lxappearance
 pulseaudio
+pulseaudio-alsa
+pulsemixer
 pa-applet-git
 xcursor-dmz
 unrar
+xdg-utils
+ristretto
+protonup-git
