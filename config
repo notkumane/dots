@@ -1,62 +1,95 @@
 #i3-Gaps Config.
-bindsym $mod+Shift+q exec i3-msg exit
-bindsym $mod+Shift+e exec i3-msg restart
-bindsym $mod+Shift+c reload
-#Modkey
+
+#Hotkeys
 set $mod Mod4
-#Scratchpad
-bindsym $mod+c move scratchpad 
-bindsym $mod+v scratchpad show
-#Splits
-bindsym $mod+x split h
-bindsym $mod+z split v
-#Gaps
-for_window [class=".*"] border pixel 2
-smart_borders on
-smart_gaps on
-gaps inner 4
-#Browser
+
 bindsym $mod+w exec "$BROWSER"
 bindsym $mod+Shift+w exec brave --incognito
-#Terminal
+
 bindsym $mod+Return exec "$TERMINAL"
 bindsym $mod+Shift+Return exec xfce4-terminal --drop-down
-#"start" menu
+
 bindsym $mod+d exec xfce4-popup-whiskermenu
-#Font Thingy
-font pango:Cascadia Code 14
-#Media Keys
+
 bindsym XF86Explorer exec thunar
 bindsym XF86HomePage exec "$BROWSER"
 bindsym XF86AudioStop exec playerctl stop
 bindsym XF86AudioPlay exec playerctl play-pause
 bindsym XF86Mail exec $BROWSER https://www.google.com/gmail/
-#Use Mouse+$mod to drag floating windows
-floating_modifier $mod
+
+#Font
+font pango:Cascadia Code 12
+
+#Control i3
+bindsym $mod+Shift+q exec i3-msg exit
+bindsym $mod+Shift+e exec i3-msg restart
+bindsym $mod+Shift+c reload
+
+#Tiling
+exec_always --no-startup-id autotiling
+bindsym $mod+z split v
+bindsym $mod+x split h
+
+#Panel
+exec --no-startup-id xfce4-panel --disable-wm-check
+
+bindsym $mod+b exec pgrep xfce4-panel && xfce4-panel -q || xfce4-panel --disable-wm-check
+
 #Kill
 bindsym $mod+q kill
+
+#Scratchpad
+bindsym $mod+c move scratchpad 
+bindsym $mod+v scratchpad show
+
+#Gaps & Color
+# class                 border  backgr. text    indicator child_border
+client.focused          #4c7899 #285577 #ffffff #9c1422   #9c1422
+client.focused_inactive #333333 #5f676a #ffffff #484e50   #5f676a
+client.unfocused        #333333 #222222 #888888 #292d2e   #222222
+client.urgent           #2f343a #900000 #ffffff #900000   #900000
+client.placeholder      #000000 #0c0c0c #ffffff #000000   #0c0c0c
+
+client.background       #ffffff
+
+for_window [class=".*"] border pixel 2
+smart_borders on
+smart_gaps on
+gaps inner 2
+
+#Use Mouse+$mod to drag floating windows
+floating_modifier $mod
+
 #Change Focus
 bindsym $mod+Left focus left
 bindsym $mod+Down focus down
 bindsym $mod+Up focus up
 bindsym $mod+Right focus right
+
 #Resize
 bindsym $mod+Ctrl+Right resize shrink width 10 px or 10 ppt
 bindsym $mod+Ctrl+Up resize grow height 10 px or 10 ppt
 bindsym $mod+Ctrl+Down resize shrink height 10 px or 10 ppt
 bindsym $mod+Ctrl+Left resize grow width 10 px or 10 ppt
+
 #Move Focused
 bindsym $mod+Shift+Left move left
 bindsym $mod+Shift+Down move down
 bindsym $mod+Shift+Up move up
 bindsym $mod+Shift+Right move right
+
 #Fullscreen
 bindsym $mod+Shift+f fullscreen toggle
+
 #Toggle tiling / floating
 bindsym $mod+f floating toggle
+
 #Change focus between floating
 bindsym $mod+space focus mode_toggle
+
 #Workspaces
+bindsym $mod+Tab workspace next
+
 set $ws1 "1"
 set $ws2 "2"
 set $ws3 "3"
@@ -67,6 +100,7 @@ set $ws7 "7"
 set $ws8 "8"
 set $ws9 "9"
 set $ws10 "10"
+
 bindsym $mod+1 workspace number $ws1
 bindsym $mod+2 workspace number $ws2
 bindsym $mod+3 workspace number $ws3
@@ -87,8 +121,3 @@ bindsym $mod+Shift+7 move container to workspace number $ws7
 bindsym $mod+Shift+8 move container to workspace number $ws8
 bindsym $mod+Shift+9 move container to workspace number $ws9
 bindsym $mod+Shift+0 move container to workspace number $ws10
-bindsym $mod+Tab workspace next
-#xfce4-panel / Toggle panel
-bindsym $mod+b exec pgrep xfce4-panel && xfce4-panel -q || xfce4-panel --disable-wm-check
-exec --no-startup-id xfce4-panel --disable-wm-check
-exec_always --no-startup-id autotiling
