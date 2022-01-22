@@ -21,4 +21,3 @@ function cd {
 alias v="sudo nvim"
 alias ls="exa -la"
 alias rr="v ~/.config/i3/config"
-alias gitsync="~/Scripts/sync.sh"

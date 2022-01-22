@@ -65,6 +65,7 @@
     </property>
     <property name="plugin-5" type="string" value="systray">
       <property name="known-legacy-items" type="array">
+        <value type="string" value="thunar"/>
         <value type="string" value="poe-overlay"/>
         <value type="string" value="xenontrade"/>
         <value type="string" value="awakened-poe-trade"/>
