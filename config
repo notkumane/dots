@@ -7,35 +7,39 @@ exec --no-startup-id /usr/lib/xfce4/notifyd/xfce4-notifyd
 exec --no-startup-id xfce4-panel --disable-wm-check
 exec_always --no-startup-id autotiling
 
-#Hotkeys
+#Hotkeys Misc
 set $mod Mod4
 bindsym $mod+q kill
-
-bindsym $mod+z split v
-bindsym $mod+x split h
-
 bindsym Print exec gnome-screenshot
+
+#Browser
 bindsym $mod+w exec "$BROWSER"
 bindsym $mod+Shift+w exec brave --incognito
 
+#Terminal
 bindsym $mod+Return exec "$TERMINAL"
 bindsym $mod+Shift+Return exec xfce4-terminal --drop-down
 
+#Application Launcher
 bindsym $mod+d exec xfce4-popup-whiskermenu
 
+#Media Keys
 bindsym XF86Explorer exec thunar
 bindsym XF86HomePage exec "$BROWSER"
 bindsym XF86Mail exec $BROWSER https://www.google.com/gmail/
 
+#Toggle Panel
 bindsym $mod+b exec pgrep xfce4-panel && xfce4-panel -q || xfce4-panel --disable-wm-check
 
+#i3-control
 bindsym $mod+Shift+e exec i3-msg restart
 bindsym $mod+Shift+c reload
 
+#Scratchpad
 bindsym $mod+c move scratchpad 
 bindsym $mod+v scratchpad show
 
-#Gaps & Color
+#Color
 # class                 border  backgr. text    indicator child_border
 client.focused          #4c7899 #20b2aa #ffffff #00CED1   #20B2AA
 client.focused_inactive #333333 #5f676a #ffffff #484e50   #5f676a
@@ -45,44 +49,23 @@ client.placeholder      #000000 #0c0c0c #ffffff #000000   #0c0c0c
 
 client.background       #ffffff
 
+#Gaps
 for_window [class=".*"] border pixel 1
 smart_borders on
 smart_gaps on
-gaps inner 2
+gaps inner 6
 
 #Use Mouse+$mod to drag floating windows
 floating_modifier $mod
 
-#Change Focus
-bindsym $mod+Left focus left
-bindsym $mod+Down focus down
-bindsym $mod+Up focus up
-bindsym $mod+Right focus right
-
-#Resize
-bindsym $mod+Ctrl+Right resize shrink width 10 px or 10 ppt
-bindsym $mod+Ctrl+Up resize grow height 10 px or 10 ppt
-bindsym $mod+Ctrl+Down resize shrink height 10 px or 10 ppt
-bindsym $mod+Ctrl+Left resize grow width 10 px or 10 ppt
-
-#Move Focused
-bindsym $mod+Shift+Left move left
-bindsym $mod+Shift+Down move down
-bindsym $mod+Shift+Up move up
-bindsym $mod+Shift+Right move right
-
 #Fullscreen
 bindsym $mod+Shift+f fullscreen toggle
 
-#Toggle tiling / floating
+#Tiling & Floating
 bindsym $mod+f floating toggle
-
-#Change focus between floating
 bindsym $mod+space focus mode_toggle
 
 #Workspaces
-bindsym $mod+Tab workspace next
-bindsym $mod+Shift+Tab move container workspace next
 set $ws1 "1"
 set $ws2 "2"
 set $ws3 "3"
@@ -104,6 +87,8 @@ bindsym $mod+7 workspace number $ws7
 bindsym $mod+8 workspace number $ws8
 bindsym $mod+9 workspace number $ws9
 bindsym $mod+0 workspace number $ws10
+
+#Move containers between workspaces
 bindsym $mod+Shift+1 move container to workspace number $ws1
 bindsym $mod+Shift+2 move container to workspace number $ws2
 bindsym $mod+Shift+3 move container to workspace number $ws3
@@ -114,3 +99,30 @@ bindsym $mod+Shift+7 move container to workspace number $ws7
 bindsym $mod+Shift+8 move container to workspace number $ws8
 bindsym $mod+Shift+9 move container to workspace number $ws9
 bindsym $mod+Shift+0 move container to workspace number $ws10
+
+#Change Focus
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+
+#Mod+Tab to switch between open workspaces
+bindsym $mod+Tab workspace next
+
+#Manual Tiling
+bindsym $mod+z split v
+bindsym $mod+x split h
+
+#Resize
+bindsym $mod+Ctrl+Right resize shrink width 10 px or 10 ppt
+bindsym $mod+Ctrl+Up resize grow height 10 px or 10 ppt
+bindsym $mod+Ctrl+Down resize shrink height 10 px or 10 ppt
+bindsym $mod+Ctrl+Left resize grow width 10 px or 10 ppt
+
+#Move Focused
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+
+
