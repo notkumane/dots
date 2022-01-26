@@ -1,10 +1,13 @@
 format = """$character"""
 right_format = """$all"""
-
 add_newline = false
 
 [package]
 disabled = true
 
 [username]
-show_always = false
+disabled = true
+
+[cmd_duration]
+min_time = 500
+format = "took [$duration](bold white)"

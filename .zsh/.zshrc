@@ -17,8 +17,8 @@ bindkey -v
 export KEYTIMEOUT=1
 
 function cd {
-    builtin cd "$@" && exa -F
+    builtin cd "$@" && exa -a -s type --icons --grid
     }
 alias v="sudo nvim"
-alias ls="exa -la"
+alias ls="exa -a -s type --icons --grid"
 alias rr="v ~/.config/i3/config"

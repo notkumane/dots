@@ -4,7 +4,3 @@ xset s off &
 xset -dpms &
 xset s noblank &
 xset r rate 400 50 &
-pa-applet &
-xcompmgr -f &
-/usr/lib/xfce4/notifyd/xfce4-notifyd &
-nitrogen --restore &

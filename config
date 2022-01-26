@@ -1,8 +1,20 @@
-#i3-Gaps Config.
+#i3-Gaps Config
+font pango:Source Code Pro Medium 14
+
+#Autostart
+exec --no-startup-id nitrogen --restore; sleep 1; xcompmgr -f
+exec --no-startup-id /usr/lib/xfce4/notifyd/xfce4-notifyd
+exec --no-startup-id xfce4-panel --disable-wm-check
+exec_always --no-startup-id autotiling
 
 #Hotkeys
 set $mod Mod4
+bindsym $mod+q kill
 
+bindsym $mod+z split v
+bindsym $mod+x split h
+
+bindsym Print exec gnome-screenshot
 bindsym $mod+w exec "$BROWSER"
 bindsym $mod+Shift+w exec brave --incognito
 
@@ -13,38 +25,19 @@ bindsym $mod+d exec xfce4-popup-whiskermenu
 
 bindsym XF86Explorer exec thunar
 bindsym XF86HomePage exec "$BROWSER"
-bindsym XF86AudioStop exec playerctl stop
-bindsym XF86AudioPlay exec playerctl play-pause
 bindsym XF86Mail exec $BROWSER https://www.google.com/gmail/
-
-#Font
-font pango:Cascadia Code 12
-
-#Control i3
-bindsym $mod+Shift+q exec i3-msg exit
-bindsym $mod+Shift+e exec i3-msg restart
-bindsym $mod+Shift+c reload
-
-#Tiling
-exec_always --no-startup-id autotiling
-bindsym $mod+z split v
-bindsym $mod+x split h
-
-#Panel
-exec --no-startup-id xfce4-panel --disable-wm-check
 
 bindsym $mod+b exec pgrep xfce4-panel && xfce4-panel -q || xfce4-panel --disable-wm-check
 
-#Kill
-bindsym $mod+q kill
+bindsym $mod+Shift+e exec i3-msg restart
+bindsym $mod+Shift+c reload
 
-#Scratchpad
 bindsym $mod+c move scratchpad 
 bindsym $mod+v scratchpad show
 
 #Gaps & Color
 # class                 border  backgr. text    indicator child_border
-client.focused          #4c7899 #285577 #ffffff #9c1422   #9c1422
+client.focused          #4c7899 #20b2aa #ffffff #00CED1   #20B2AA
 client.focused_inactive #333333 #5f676a #ffffff #484e50   #5f676a
 client.unfocused        #333333 #222222 #888888 #292d2e   #222222
 client.urgent           #2f343a #900000 #ffffff #900000   #900000
@@ -52,7 +45,7 @@ client.placeholder      #000000 #0c0c0c #ffffff #000000   #0c0c0c
 
 client.background       #ffffff
 
-for_window [class=".*"] border pixel 2
+for_window [class=".*"] border pixel 1
 smart_borders on
 smart_gaps on
 gaps inner 2
@@ -89,7 +82,7 @@ bindsym $mod+space focus mode_toggle
 
 #Workspaces
 bindsym $mod+Tab workspace next
-
+bindsym $mod+Shift+Tab move container workspace next
 set $ws1 "1"
 set $ws2 "2"
 set $ws3 "3"
