@@ -41,7 +41,7 @@ bindsym $mod+v scratchpad show
 
 #Color
 # class                 border  backgr. text    indicator child_border
-client.focused          #4c7899 #20b2aa #ffffff #00CED1   #20B2AA
+client.focused          #4c7899 #20b2aa #ffffff #ba55d3   #ff00ff
 client.focused_inactive #333333 #5f676a #ffffff #484e50   #5f676a
 client.unfocused        #333333 #222222 #888888 #292d2e   #222222
 client.urgent           #2f343a #900000 #ffffff #900000   #900000
@@ -53,7 +53,16 @@ client.background       #ffffff
 for_window [class=".*"] border pixel 1
 smart_borders on
 smart_gaps on
-gaps inner 6
+gaps inner 4
+gaps outer 2
+
+#Adjust gaps with mouse
+bindsym --whole-window --border $mod+button4 gaps outer current plus 2
+bindsym --whole-window --border $mod+button5 gaps outer current minus 2
+bindsym --whole-window --border $mod+Shift+button4 gaps inner current plus 2
+bindsym --whole-window --border $mod+Shift+button5 gaps inner current minus 2
+bindsym --whole-window --border $mod+button8 gaps inner current set 4; gaps outer current set 2
+bindsym --whole-window --border $mod+button9 gaps inner current set 0; gaps outer current set 0
 
 #Use Mouse+$mod to drag floating windows
 floating_modifier $mod

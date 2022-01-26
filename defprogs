@@ -1,7 +1,6 @@
 xorg-xset
 xorg-server
 xorg-xinit
-xorg-xev
 xorg-xrandr
 nitrogen
 i3-gaps
@@ -27,3 +26,6 @@ brave-bin
 pulseaudio
 pulseaudio-alsa
 pulsemixer
+sweet-gtk-theme
+candy-icons-git
+sweet-cursor-theme-git
