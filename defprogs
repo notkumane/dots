@@ -22,6 +22,7 @@ xarchiver
 gvfs
 unrar
 xdg-utils
+xdg-user-dirs
 brave-bin
 pulseaudio
 pulseaudio-alsa
