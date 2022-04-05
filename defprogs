@@ -1,14 +1,11 @@
-xorg-xset
 xorg-server
 xorg-xinit
 xorg-xrandr
+xorg-xset
 nitrogen
 i3-gaps
-python-i3ipc
-autotiling
 xfce4-panel
 xfce4-terminal
-xfce4-i3-workspaces-plugin
 xfce4-notifyd
 xfce4-whiskermenu-plugin
 xfce4-weather-plugin
