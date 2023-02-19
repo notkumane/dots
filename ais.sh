@@ -21,8 +21,11 @@ mount /dev/sda1 /mnt/boot
 mkdir /mnt/home
 mount /dev/sda4 /mnt/home
 
+# Enable parallel downloads in pacman.conf
+sed -i 's/^#\(ParallelDownloads = \)5$/\11/' /etc/pacman.conf
+
 # Install the base system
-pacstrap /mnt base base-devel intel-ucode linux-zen linux-zen-headers dkms
+pacstrap /mnt base base-devel intel-ucode linux-zen linux-zen-headers dkms pulseaudio
 
 # Generate fstab
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -32,6 +35,9 @@ arch-chroot /mnt /bin/bash <<EOF
 
 # Set the root password
 echo "root:$ROOT_PASS" | chpasswd
+
+# Enable parallel downloads in pacman.conf
+sed -i 's/^#\(ParallelDownloads = \)5$/\11/' /etc/pacman.conf
 
 # Install and configure grub
 pacman -S grub efibootmgr dosfstools os-prober mtools --noconfirm
