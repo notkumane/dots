@@ -1,10 +1,23 @@
 #!/bin/bash
 
+# Function to prompt user for input and validate against a regular expression
+function get_input {
+    local prompt=$1
+    local regex=$2
+    local error_msg=$3
+    read -rp "$prompt" input
+    if ! [[ $input =~ $regex ]]; then
+        echo "$error_msg"
+        get_input "$prompt" "$regex" "$error_msg"
+    fi
+    echo "$input"
+}
+
 # List all available block devices and prompt the user to select one
 echo "Available block devices:"
-lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop"
-read -rp "Enter the device name to partition (e.g. /dev/sda): " device
-
+devices=$(lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop")
+echo "$devices"
+device=$(get_input "Enter the device name to partition (e.g. /dev/sda): " "^/dev/.*$" "Invalid device name. Enter a valid device name (e.g. /dev/sda): ")
 echo "Partitioning $device..."
 
 # Create EFI partition
@@ -15,28 +28,33 @@ parted -s "$device" set 1 esp on
 mkfs.fat -F32 "${device}1"
 
 # Ask user about swap partition
-echo "Do you want to create a swap partition? (y/n)"
-read -r swap_answer
+get_input "Do you want to create a swap partition? (y/n)" "^[yn]$" "Invalid input. Enter 'y' for yes or 'n' for no."
+swap_answer=$input
 
 if [[ $swap_answer == "y" ]]; then
+  # Prompt for swap size in GB and calculate size in MiB
+  swap_size_gb=$(get_input "Enter the size of the swap partition in GB (e.g. 2): " "^[0-9]+$" "Invalid input. Enter a positive integer.")
+  swap_size_mib=$((swap_size_gb * 1024))
+  
   # Create swap partition
-  echo "Enter the size of the swap partition in GB (e.g. 2)"
-  read -r swap_size
-  swap_size=$(echo "$swap_size * 1024" | bc)
   echo "Creating swap partition..."
-  parted -s "$device" mkpart primary linux-swap 1000MiB "${swap_size}MiB"
+  parted -s "$device" mkpart primary linux-swap 1000MiB "${swap_size_mib}MiB"
   mkswap "${device}2"
   swapon "${device}2"
 fi
 
+# Prompt for root partition size in GB and calculate size in MiB
+root_size_gb=$(get_input "Enter the size of the root partition in GB (e.g. 20): " "^[0-9]+$" "Invalid input. Enter a positive integer.")
+root_size_mib=$((root_size_gb * 2048))
+
 # Create root partition
 echo "Creating root partition..."
-parted -s "$device" mkpart primary ext4 "${swap_size:-0}MB" 20000MB
+parted -s "$device" mkpart primary ext4 "${swap_size_mib:-0}MiB" "${root_size_mib}MiB"
 mkfs.ext4 "${device}3"
 
 # Allocate all remaining space to home partition
 echo "Creating home partition..."
-parted -s "$device" mkpart primary ext4 10000MB 100%
+parted -s "$device" mkpart primary ext4 "${root_size_mib}MiB" 100%
 mkfs.ext4 "${device}4"
 
 # Mount the partitions
