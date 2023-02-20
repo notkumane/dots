@@ -16,9 +16,9 @@ printf "Please select a drive to partition:\n"
 lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac
 read -rp "Drive: " drive
 
-# Wipe the drive with zeros
+# Wipe the drive with hdparm
 printf "Wiping drive %s...\n" "$drive"
-dd if=/dev/zero of="$drive" bs=1M status=progress
+hdparm --security-erase null "$drive"
 
 # Partition the drive
 parted -a opt -s "$drive" mklabel gpt
