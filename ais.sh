@@ -16,12 +16,11 @@ printf "Please select a drive to partition:\n"
 lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac
 read -rp "Drive: " drive
 
-# Wipe the drive
+# Wipe the drive with zeros
 printf "Wiping drive %s...\n" "$drive"
-shred --verbose --random-source=/dev/urandom "$drive"
+dd if=/dev/zero of="$drive" bs=1M status=progress
 
 # Partition the drive
-wipefs --all "${drive}"
 parted -a opt -s "$drive" mklabel gpt
 last_partition=$(parted "$drive" unit MiB print free | awk '/Free Space/ {print $1}' | tail -1)
 parted -a opt -s "$drive" mkpart efi fat32 1MiB 512MiB \
