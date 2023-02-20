@@ -41,8 +41,10 @@ mkfs.ext4 "${device}4"
 echo "Mounting partitions..."
 mount "${device}3" /mnt
 mkdir /mnt/boot
+mkfs.fat -F32 "${device}1"
 mount "${device}1" /mnt/boot
 mkdir /mnt/home
+mkfs.ext4 "${device}4"
 mount "${device}4" /mnt/home
 
 # Prompts for root password, notkeemane password and hostname
