@@ -1,68 +1,30 @@
 #!/bin/bash
 
-# Function to prompt user for input and validate against a regular expression
-function get_input {
-    local prompt=$1
-    local regex=$2
-    local error_msg=$3
-    read -rp "$prompt" input
-    if ! [[ $input =~ $regex ]]; then
-        echo "$error_msg"
-        get_input "$prompt" "$regex" "$error_msg"
-    fi
-    echo "$input"
-}
+# Prompt the user to select a drive for partitioning
+echo "Please select a drive to partition:"
+lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac
+read -p "Drive: " drive
 
-# List all available block devices and prompt the user to select one
-echo "Available block devices:"
-devices=$(lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop")
-echo "$devices"
-device=$(get_input "Enter the device name to partition (e.g. /dev/sda): " "^/dev/.*$" "Invalid device name. Enter a valid device name (e.g. /dev/sda): ")
-echo "Partitioning $device..."
-
-# Create EFI partition
+# Create the EFI partition
 echo "Creating EFI partition..."
-parted -s "$device" mklabel gpt
-parted -s "$device" mkpart primary fat32 1MiB 1000MiB
-parted -s "$device" set 1 esp on
-mkfs.fat -F32 "${device}1"
+echo -e "n\np\n1\n\n+512M\nt\n1\n1\nw" | fdisk "$drive"
+mkfs.fat -F32 "${drive}1"
 
-# Ask user about swap partition
-get_input "Do you want to create a swap partition? (y/n)" "^[yn]$" "Invalid input. Enter 'y' for yes or 'n' for no."
-swap_answer=$input
+# Create the Swap partition
+echo "Creating Swap partition..."
+echo -e "n\np\n2\n\n+8G\nt\n2\n82\nw" | fdisk "$drive"
+mkswap "${drive}2"
+swapon "${drive}2"
 
-if [[ $swap_answer == "y" ]]; then
-  # Prompt for swap size in GB and calculate size in MiB
-  swap_size_gb=$(get_input "Enter the size of the swap partition in GB (e.g. 2): " "^[0-9]+$" "Invalid input. Enter a positive integer.")
-  swap_size_mib=$((swap_size_gb * 1024))
-  
-  # Create swap partition
-  echo "Creating swap partition..."
-  parted -s "$device" mkpart primary linux-swap 1000MiB "${swap_size_mib}MiB"
-  mkswap "${device}2"
-  swapon "${device}2"
-fi
+# Create the Root/Home partition
+echo "Creating Root/Home partition..."
+echo -e "n\np\n3\n\n\nw" | fdisk "$drive"
+mkfs.ext4 "${drive}3"
 
-# Allocate all remaining space to root and home partition
-echo "Creating root and home partition..."
-parted -s "$device" mkpart primary ext4 1000MiB 100%
-mkfs.ext4 "${device}2"
-
-# Mount the root and home partitions
-echo "Mounting partitions..."
-
-if lsblk -f "$device"2 | grep -q ext4; then
-  mount "${device}2" /mnt
-else
-  echo "Root partition does not exist or is not formatted as ext4."
-fi
-
-if lsblk -f "$device"3 | grep -q ext4; then
-  mkdir /mnt/home
-  mount "${device}3" /mnt/home
-else
-  echo "Home partition does not exist or is not formatted as ext4."
-fi
+# Mount the partitions
+mount "${drive}3" /mnt
+mkdir /mnt/boot
+mount "${drive}1" /mnt/boot/efi
 
 # Prompts for root password, notkeemane password and hostname
 echo "Enter password for root user:"
@@ -119,7 +81,7 @@ loadkeys fi
 
 # Install and configure bootloader
 pacman -S --noconfirm grub efibootmgr
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
 
 # Enable dkms
