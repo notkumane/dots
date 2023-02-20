@@ -11,14 +11,24 @@ lsblk -plnx size -o name,size $disk
 
 # Prompt user for partition sizes
 read -p "Enter swap partition size (in GB): " swap_size
-read -p "Enter root partition size (in GB): " root_size
-read -p "Enter home partition size (in GB): " home_size
+swap_end=$((512+swap_size*1024))
+parted -s "$disk" mkpart primary linux-swap 512MiB ${swap_end}MiB
 
-# Calculate partition sizes
-boot_size=512
-swap_end=$((boot_size+swap_size*1024))
+# Update available space on disk
+echo "Available space on $disk:"
+lsblk -plnx size -o name,size $disk | tail -n 1
+
+read -p "Enter root partition size (in GB): " root_size
 root_end=$((swap_end+root_size*1024))
+parted -s "$disk" mkpart primary ext4 ${swap_end}MiB ${root_end}MiB
+
+# Update available space on disk
+echo "Available space on $disk:"
+lsblk -plnx size -o name,size $disk | tail -n 1
+
+read -p "Enter home partition size (in GB): " home_size
 home_end=$((root_end+home_size*1024))
+parted -s "$disk" mkpart primary ext4 ${root_end}MiB ${home_end}MiB
 
 # Verify partition sizes do not exceed disk size
 disk_size=$(lsblk -bdno SIZE $disk)
@@ -27,27 +37,15 @@ if [ $((home_end*1024)) -gt $disk_size ]; then
   exit 1
 fi
 
-# Set up clock
-timedatectl set-ntp true
-
-# Partitioning the disk
-parted -s "$disk" mklabel gpt \
-          mkpart primary fat32 1MiB ${boot_size}MiB \
-          set 1 esp on \
-          mkpart primary linux-swap ${boot_size}MiB ${swap_end}MiB \
-          mkpart primary ext4 ${swap_end}MiB ${root_end}MiB \
-          mkpart primary ext4 ${root_end}MiB ${home_end}MiB
-
 # Formatting the partitions
-mkfs.fat -F32 "${disk}1"
 mkswap "${disk}2"
 mkfs.ext4 "${disk}3"
 mkfs.ext4 "${disk}4"
 
 # Mounting the partitions
 mount "${disk}3" /mnt
-mkdir /mnt/boot
-mount "${disk}1" /mnt/boot
+mkdir /mnt/home
+mount "${disk}4" /mnt/home
 swapon "${disk}2"
 
 # Prompts for root password, notkeemane password and hostname
@@ -110,6 +108,10 @@ grub-mkconfig -o /boot/grub/grub.cfg
 
 # Enable dkms
 systemctl enable dkms.service
+
+# Enable NTP
+systemctl enable systemd-timesyncd.service
+systemctl start systemd-timesyncd.service
 
 # Unmount all partitions and reboot
 umount -R /mnt
