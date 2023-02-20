@@ -12,6 +12,7 @@ echo "Creating EFI partition..."
 parted -s "$device" mklabel gpt
 parted -s "$device" mkpart primary fat32 1MiB 1000MiB
 parted -s "$device" set 1 esp on
+mkfs.fat -F32 "${device}1"
 
 # Ask user about swap partition
 echo "Do you want to create a swap partition? (y/n)"
@@ -19,17 +20,18 @@ read -r swap_answer
 
 if [[ $swap_answer == "y" ]]; then
   # Create swap partition
-  echo "Enter the size of the swap partition (e.g. 2048)"
+  echo "Enter the size of the swap partition in gigabytes (e.g. 2)"
   read -r swap_size
   echo "Creating swap partition..."
-  parted -s "$device" mkpart primary linux-swap 1000MiB "${swap_size}MB"
+  swap_size_mb=$((swap_size*1024))
+  parted -s "$device" mkpart primary linux-swap 1000MiB "${swap_size_mb}MB"
   mkswap "${device}2"
   swapon "${device}2"
 fi
 
 # Create root partition
 echo "Creating root partition..."
-parted -s "$device" mkpart primary ext4 "${swap_size:-0}MB" 10000MB
+parted -s "$device" mkpart primary ext4 "${swap_size_mb:-0}MB" 10000MB
 mkfs.ext4 "${device}3"
 
 # Allocate all remaining space to home partition
@@ -41,11 +43,11 @@ mkfs.ext4 "${device}4"
 echo "Mounting partitions..."
 mount "${device}3" /mnt
 mkdir /mnt/boot
-mkfs.fat -F32 "${device}1"
 mount "${device}1" /mnt/boot
 mkdir /mnt/home
-mkfs.ext4 "${device}4"
 mount "${device}4" /mnt/home
+
+echo "Partitioning complete!"
 
 # Prompts for root password, notkeemane password and hostname
 echo "Enter password for root user:"
