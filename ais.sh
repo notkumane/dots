@@ -1,16 +1,16 @@
 #!/bin/bash
 
-# Prompt the user to select the device to partition
-echo "Please select the device to partition:"
-lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac
-read -rp "Device: " device
+# List all available block devices and prompt the user to select one
+echo "Available block devices:"
+lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop"
+read -rp "Enter the device name to partition (e.g. /dev/sda): " device
 
 echo "Partitioning $device..."
 
 # Create EFI partition
 echo "Creating EFI partition..."
 parted -s "$device" mklabel gpt
-parted -s "$device" mkpart primary fat32 1MiB 1GiB
+parted -s "$device" mkpart primary fat32 1MiB 1000MiB
 parted -s "$device" set 1 esp on
 
 # Ask user about swap partition
@@ -19,22 +19,22 @@ read -r swap_answer
 
 if [[ $swap_answer == "y" ]]; then
   # Create swap partition
-  echo "Enter the size of the swap partition (e.g. 2G)"
+  echo "Enter the size of the swap partition (e.g. 2048)"
   read -r swap_size
   echo "Creating swap partition..."
-  parted -s "$device" mkpart primary linux-swap 1GiB $swap_size
+  parted -s "$device" mkpart primary linux-swap 1000MiB "${swap_size}MB"
   mkswap "${device}2"
   swapon "${device}2"
 fi
 
 # Create root partition
 echo "Creating root partition..."
-parted -s "$device" mkpart primary ext4 $((1 + ${swap_size:-0}))GiB 11GiB
+parted -s "$device" mkpart primary ext4 "${swap_size:-0}MB" 10000MB
 mkfs.ext4 "${device}3"
 
 # Allocate all remaining space to home partition
 echo "Creating home partition..."
-parted -s "$device" mkpart primary ext4 11GiB 100%
+parted -s "$device" mkpart primary ext4 10000MB 100%
 mkfs.ext4 "${device}4"
 
 # Mount the partitions
