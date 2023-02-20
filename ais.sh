@@ -17,6 +17,7 @@ lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac
 read -rp "Drive: " drive
 
 # Partition the drive
+wipefs --all "${drive}"
 parted -a opt -s "$drive" mklabel gpt
 existing_partitions=$(parted "$drive" print | awk '/^ / {print $1}')
 if [[ -z "$existing_partitions" ]]; then
