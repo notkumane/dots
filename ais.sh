@@ -1,65 +1,94 @@
 #!/bin/bash
 
-echo "Setting up the disks..."
+# Set up clock
+timedatectl set-ntp true
 
-lsblk
+# Partitioning the disk
+cfdisk
 
-echo -n "Enter the device to use as root (eg. /dev/sda): "
-read ROOT_DEVICE
+# Formatting the partitions
+mkfs.fat -F32 /dev/sda1
+mkfs.ext4 /dev/sda2
 
-echo -n "Enter the swap size in GiB (eg. 2): "
-read SWAP_SIZE
-
-echo "Setting up the partitions..."
-
-sgdisk --zap-all $ROOT_DEVICE
-sgdisk --new=1:0:+512MiB --typecode=1:ef00 $ROOT_DEVICE
-sgdisk --new=2:0:+${SWAP_SIZE}GiB --typecode=2:8200 $ROOT_DEVICE
-sgdisk --new=3:0:0 --typecode=3:8300 $ROOT_DEVICE
-mkfs.fat -F32 ${ROOT_DEVICE}1
-mkswap ${ROOT_DEVICE}2
-mkfs.ext4 ${ROOT_DEVICE}3
-swapon ${ROOT_DEVICE}2
-mount ${ROOT_DEVICE}3 /mnt
+# Mounting the partitions
+mount /dev/sda2 /mnt
 mkdir /mnt/boot
-mount ${ROOT_DEVICE}1 /mnt/boot
+mount /dev/sda1 /mnt/boot
 
-echo "Installing the base system..."
+# Prompts for root password, notkeemane password and hostname
+echo "Enter password for root user:"
+read -s ROOT_PASSWD
 
-pacstrap /mnt base linux linux-firmware neovim networkmanager
-genfstab -U /mnt >> /mnt/etc/fstab
+echo "Enter password for notkeemane user:"
+read -s USER_PASSWD
 
-echo "Chrooting into the new system..."
-
-echo "Enter the hostname:"
+echo "Enter hostname:"
 read HOSTNAME
 
+# Installing Arch Linux
+pacman -Sy --noconfirm pacman-contrib
+echo "Server = https://mirrors.kernel.org/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
+
+# Enable parallel downloads
+sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
+
+pacstrap /mnt base linux-zen linux-zen-headers intel-ucode networkmanager neovim dkms
+
+# Generating the fstab file
+genfstab -U /mnt >> /mnt/etc/fstab
+
+# Chrooting into the new system
 arch-chroot /mnt /bin/bash <<EOF
-echo $HOSTNAME > /etc/hostname
+
+# Set the time zone and hardware clock
+ln -sf /usr/share/zoneinfo/Europe/Helsinki /etc/localtime
+hwclock --systohc
+
+# Set up the locale
+sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
+locale-gen
+echo "LANG=en_US.UTF-8" > /etc/locale.conf
+
+# Set hostname and hosts
+echo "$HOSTNAME" > /etc/hostname
 echo "127.0.0.1    localhost" > /etc/hosts
 echo "::1          localhost" >> /etc/hosts
 echo "127.0.1.1    $HOSTNAME.localdomain    $HOSTNAME" >> /etc/hosts
 
-echo "Enter the root password:"
-passwd
+# Enable NetworkManager
+systemctl enable NetworkManager
 
-echo "Enter the notkeemane user password:"
-useradd -m -G wheel -s /bin/bash notkeemane
-passwd notkeemane
+# Set root password and create notkeemane user
+echo "root:$ROOT_PASSWD" | chpasswd
+useradd -m -s /bin/bash notkeemane
+echo "notkeemane:$USER_PASSWD" | chpasswd
 
-sed -i 's/^# %wheel ALL=(ALL) ALL$/%wheel ALL=(ALL) ALL/' /etc/sudoers
-ln -sf /usr/share/zoneinfo/Europe/Helsinki /etc/localtime
-hwclock --systohc
-locale-gen
-echo 'LANG=en_US.UTF-8' > /etc/locale.conf
-systemctl enable NetworkManager.service
+# set the keymap to fi
+echo "Setting keymap to fi"
+echo "KEYMAP=fi" > /etc/vconsole.conf
+loadkeys fi
 
-echo "Installation complete. Reboot now? (y/n)"
-read REBOOT
+# Install and configure bootloader
+pacman -S --noconfirm grub efibootmgr
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+grub-mkconfig -o /boot/grub/grub.cfg
 
-if [ "$REBOOT" == "y" ]; then
-  reboot
-else
-  echo "Exiting chroot. You may now unmount the partitions and reboot."
-fi
+# Enable dkms
+systemctl enable dkms.service
+
 EOF
+
+# Unmount all partitions and reboot
+umount -R /mnt
+reboot_prompt() {
+  while true; do
+    read -p "Do you want to reboot now? [y/n]: " reboot_choice
+    case "$reboot_choice" in
+      [Yy]* ) reboot; break;;
+      [Nn]* ) exit;;
+      * ) echo "Please answer 'y' or 'n'.";;
+    esac
+  done
+}
+
+reboot_prompt
