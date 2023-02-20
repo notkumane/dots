@@ -4,6 +4,16 @@
 echo "Enter the root password:"
 read -s ROOT_PASS
 
+# Set the hostname
+echo "Enter the hostname:"
+read HOSTNAME
+echo "$HOSTNAME" > /etc/hostname
+
+# Add the hostname to the hosts file
+echo "127.0.0.1    localhost
+::1          localhost
+127.0.1.1    $HOSTNAME.localdomain $HOSTNAME" >> /etc/hosts
+
 # Partition the disk
 cfdisk /dev/sda
 
@@ -21,11 +31,8 @@ mount /dev/sda1 /mnt/boot
 mkdir /mnt/home
 mount /dev/sda4 /mnt/home
 
-# Enable parallel downloads in pacman.conf
-sed -i 's/^#\(ParallelDownloads = \)5$/\11/' /etc/pacman.conf
-
 # Install the base system
-pacstrap /mnt base base-devel intel-ucode linux-zen linux-zen-headers dkms pulseaudio
+pacstrap /mnt base base-devel intel-ucode linux-zen linux-zen-headers dkms networkmanager neovim pulseaudio
 
 # Generate fstab
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -35,9 +42,6 @@ arch-chroot /mnt /bin/bash <<EOF
 
 # Set the root password
 echo "root:$ROOT_PASS" | chpasswd
-
-# Enable parallel downloads in pacman.conf
-sed -i 's/^#\(ParallelDownloads = \)5$/\11/' /etc/pacman.conf
 
 # Install and configure grub
 pacman -S grub efibootmgr dosfstools os-prober mtools --noconfirm
