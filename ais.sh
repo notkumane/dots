@@ -17,13 +17,13 @@ mkfs.fat -F32 "${drive}1"
 mkswap "${drive}2"
 mkfs.ext4 "${drive}3"
 
+# Create mount points and mount the partitions
+mkdir -p /mnt/boot/efi
+mount "${drive}3" /mnt
+mount "${drive}1" /mnt/boot/efi
+
 # Enable swap partition
 swapon "${drive}2"
-
-# Mount the partitions
-mount "${drive}3" /mnt
-mkdir /mnt/boot
-mount "${drive}1" /mnt/boot/efi
 
 echo "Partitioning complete."
 
@@ -44,7 +44,7 @@ echo "Server = https://mirrors.kernel.org/archlinux/\$repo/os/\$arch" > /etc/pac
 # Enable parallel downloads
 sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
 
-pacstrap /mnt base linux-zen linux-zen-headers intel-ucode networkmanager neovim dkms
+pacstrap /mnt base base-devel linux-zen linux-zen-headers intel-ucode networkmanager neovim dkms
 
 # Generating the fstab file
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -75,6 +75,9 @@ echo "root:$ROOT_PASSWD" | chpasswd
 useradd -m -s /bin/bash notkeemane
 echo "notkeemane:$USER_PASSWD" | chpasswd
 
+# Set up sudo for notkeemane
+echo "notkeemane ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
 # set the keymap to fi
 echo "Setting keymap to fi"
 echo "KEYMAP=fi" > /etc/vconsole.conf
@@ -85,13 +88,10 @@ pacman -S --noconfirm grub efibootmgr
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
 
-# Enable dkms
-systemctl enable dkms.service
-
-# Enable NTP
-systemctl enable systemd-timesyncd.service
-systemctl start systemd-timesyncd.service
+EOF
 
 # Unmount partitions
 umount -R /mnt
+
+# Reboot
 reboot
