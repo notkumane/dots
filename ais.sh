@@ -42,10 +42,8 @@ swapon "${drive}2"
 mkfs.ext4 "${drive}3"
 
 # Create mount points for root and efi partitions
-mkdir /mnt
-mount "${drive}3" /mnt
-mkdir -p /mnt/boot/efi
-mount "${drive}1" /mnt/boot/efi
+mount --mkdir "${drive}3" /mnt
+mount --mkdir "${drive}1" /mnt/boot
 
 # Installing Arch Linux
 pacman -Sy --noconfirm pacman-contrib
@@ -100,7 +98,7 @@ systemctl enable sddm.service
 
 # Install and configure bootloader
 pacman -S --noconfirm grub efibootmgr
-grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
 
 EOF
