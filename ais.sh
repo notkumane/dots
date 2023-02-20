@@ -92,9 +92,9 @@ echo "KEYMAP=fi" > /etc/vconsole.conf
 loadkeys fi
 
 # Install and configure packages
-pacman -S --noconfirm xorg plasma-desktop sddm pulseaudio plasma-nm plasma-pa kdeplasma-addons kde-gtk-config
-echo "exec startkde" > /etc/sddm.conf.d/kde.conf
-systemctl enable sddm.service
+sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
+pacman -S --noconfirm xorg plasma-desktop dolphin konsole kscreen sddm pulseaudio plasma-nm plasma-pa kdeplasma-addons kde-gtk-config 
+systemctl enable sddm
 
 # Install and configure bootloader
 pacman -S --noconfirm grub efibootmgr
