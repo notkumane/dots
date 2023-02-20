@@ -5,6 +5,10 @@ echo "Available disks:"
 lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop"
 read -p "Enter disk to partition: " disk
 
+# Show available space on disk
+echo "Available space on $disk:"
+lsblk -plnx size -o name,size $disk
+
 # Prompt user for partition sizes
 read -p "Enter swap partition size (in GB): " swap_size
 read -p "Enter root partition size (in GB): " root_size
