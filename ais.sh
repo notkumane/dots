@@ -46,15 +46,6 @@ mkfs.ext4 "${drive}3"
 mount --mkdir "${drive}3" /mnt
 mount --mkdir "${drive}1" /mnt/boot
 
-# Enable multilib repository in pacman.conf
-sed -i '/\[multilib\]/{n;s/^#//;};/\[community\]/{n;n;s/^#//;}' /etc/pacman.conf
-
-# Find the line with "Include" for the default repositories
-repo_line=$(grep -n '/etc/pacman.d/mirrorlist' /etc/pacman.conf | cut -d ':' -f 1)
-
-# Enable multilib repository in the default repository list
-sed -i "${repo_line}s/^#//" /etc/pacman.conf
-
 pacman -Sy --noconfirm pacman-contrib
 echo "Server = http://mirror.neuf.no/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
 echo "Server = https://ftp.acc.umu.se/mirror/archlinux/\$repo/os/\$arch" >> /etc/pacman.d/mirrorlist
