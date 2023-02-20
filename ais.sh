@@ -11,8 +11,6 @@ echo "Enter hostname:"
 read HOSTNAME
 set -e
 
-#!/bin/bash
-
 # Prompt the user to select a drive for partitioning
 printf "Please select a drive to partition:\n"
 lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac
