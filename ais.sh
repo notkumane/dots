@@ -46,7 +46,14 @@ mkfs.ext4 "${drive}3"
 mount --mkdir "${drive}3" /mnt
 mount --mkdir "${drive}1" /mnt/boot
 
-sed -i 's/^#\[multilib\]/\[multilib\]/' /etc/pacman.conf && sed -i '/^#\[multilib\]/{n;s/^#//}' /etc/pacman.conf
+# Enable multilib repository in pacman.conf
+sed -i '/\[multilib\]/{n;s/^#//;};/\[community\]/{n;n;s/^#//;}' /etc/pacman.conf
+
+# Find the line with "Include" for the default repositories
+repo_line=$(grep -n '/etc/pacman.d/mirrorlist' /etc/pacman.conf | cut -d ':' -f 1)
+
+# Enable multilib repository in the default repository list
+sed -i "${repo_line}s/^#//" /etc/pacman.conf
 
 pacman -Sy --noconfirm pacman-contrib
 echo "Server = http://mirror.neuf.no/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
@@ -97,11 +104,6 @@ echo "notkeemane:$USER_PASSWD" | chpasswd
 # Set up sudo for notkeemane
 echo "notkeemane ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-# set the keymap to fi
-echo "Setting keymap to fi"
-echo "KEYMAP=fi" > /etc/vconsole.conf
-loadkeys fi
-
 # Install and configure packages
 sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
 pacman -S --noconfirm xorg plasma-desktop dolphin konsole kscreen sddm pulseaudio plasma-nm plasma-pa kdeplasma-addons kde-gtk-config 
@@ -111,6 +113,13 @@ systemctl enable sddm
 pacman -S --noconfirm grub efibootmgr
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
+
+# set the keymap to fi
+echo 'Section "InputClass"
+    Identifier "system-keyboard"
+    MatchIsKeyboard "on"
+    Option "XkbLayout" "fi"
+EndSection' | tee /etc/X11/xorg.conf.d/00-keyboard.conf
 
 EOF
 
