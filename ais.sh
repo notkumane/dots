@@ -5,14 +5,21 @@ echo "Available disks:"
 lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop"
 read -p "Enter disk to partition: " disk
 
+# Ensure disk is set as GPT
+parted -s "$disk" mklabel gpt
+
+# Create EFI partition
+parted -s "$disk" mkpart primary fat32 1MiB 513MiB
+parted -s "$disk" set 1 esp on
+
 # Show available space on disk
 echo "Available space on $disk:"
 lsblk -plnx size -o name,size $disk
 
 # Prompt user for partition sizes
 read -p "Enter swap partition size (in GB): " swap_size
-swap_end=$((512+swap_size*1024))
-parted -s "$disk" mkpart primary linux-swap 512MiB ${swap_end}MiB
+swap_end=$((513+swap_size*1024))
+parted -s "$disk" mkpart primary linux-swap 513MiB ${swap_end}MiB
 
 # Update available space on disk
 echo "Available space on $disk:"
@@ -41,6 +48,7 @@ fi
 mkswap "${disk}2"
 mkfs.ext4 "${disk}3"
 mkfs.ext4 "${disk}4"
+mkfs.fat -F32 "${disk}1"
 
 # Mounting the partitions
 mount "${disk}3" /mnt
