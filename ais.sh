@@ -41,8 +41,10 @@ mkswap "${drive}2"
 mkfs.ext4 "${drive}3"
 
 # Create mount points for root and efi partitions
-mkdir -p /mnt/boot/efi
 mkdir -p /mnt
+chmod 755 /mnt
+chown root:root /mnt
+mkdir -p /mnt/boot/efi
 
 # Mount the partitions
 mount "${drive}3" /mnt
