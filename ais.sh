@@ -43,29 +43,26 @@ if [[ $swap_answer == "y" ]]; then
   swapon "${device}2"
 fi
 
-# Prompt for root partition size in GB and calculate size in MiB
-root_size_gb=$(get_input "Enter the size of the root partition in GB (e.g. 20): " "^[0-9]+$" "Invalid input. Enter a positive integer.")
-root_size_mib=$((root_size_gb * 2048))
+# Allocate all remaining space to root and home partition
+echo "Creating root and home partition..."
+parted -s "$device" mkpart primary ext4 1000MiB 100%
+mkfs.ext4 "${device}2"
 
-# Create root partition
-echo "Creating root partition..."
-parted -s "$device" mkpart primary ext4 "${swap_size_mib:-0}MiB" "${root_size_mib}MiB"
-mkfs.ext4 "${device}3"
-
-# Allocate all remaining space to home partition
-echo "Creating home partition..."
-parted -s "$device" mkpart primary ext4 "${root_size_mib}MiB" 100%
-mkfs.ext4 "${device}4"
-
-# Mount the partitions
+# Mount the root and home partitions
 echo "Mounting partitions..."
-mount "${device}3" /mnt
-mkdir /mnt/boot
-mount "${device}1" /mnt/boot
-mkdir /mnt/home
-mount "${device}4" /mnt/home
 
-echo "Partitioning complete!"
+if lsblk -f "$device"2 | grep -q ext4; then
+  mount "${device}2" /mnt
+else
+  echo "Root partition does not exist or is not formatted as ext4."
+fi
+
+if lsblk -f "$device"3 | grep -q ext4; then
+  mkdir /mnt/home
+  mount "${device}3" /mnt/home
+else
+  echo "Home partition does not exist or is not formatted as ext4."
+fi
 
 # Prompts for root password, notkeemane password and hostname
 echo "Enter password for root user:"
