@@ -1,19 +1,50 @@
 #!/bin/bash
 
+# Ask user for disk device to partition
+echo "Available disks:"
+lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop"
+read -p "Enter disk to partition: " disk
+
+# Prompt user for partition sizes
+read -p "Enter swap partition size (in GB): " swap_size
+read -p "Enter root partition size (in GB): " root_size
+read -p "Enter home partition size (in GB): " home_size
+
+# Calculate partition sizes
+boot_size=512
+swap_end=$((boot_size+swap_size*1024))
+root_end=$((swap_end+root_size*1024))
+home_end=$((root_end+home_size*1024))
+
+# Verify partition sizes do not exceed disk size
+disk_size=$(lsblk -bdno SIZE $disk)
+if [ $((home_end*1024)) -gt $disk_size ]; then
+  echo "Error: partition sizes exceed disk size"
+  exit 1
+fi
+
 # Set up clock
 timedatectl set-ntp true
 
 # Partitioning the disk
-cfdisk
+parted -s "$disk" mklabel gpt \
+          mkpart primary fat32 1MiB ${boot_size}MiB \
+          set 1 esp on \
+          mkpart primary linux-swap ${boot_size}MiB ${swap_end}MiB \
+          mkpart primary ext4 ${swap_end}MiB ${root_end}MiB \
+          mkpart primary ext4 ${root_end}MiB ${home_end}MiB
 
 # Formatting the partitions
-mkfs.fat -F32 /dev/sda1
-mkfs.ext4 /dev/sda2
+mkfs.fat -F32 "${disk}1"
+mkswap "${disk}2"
+mkfs.ext4 "${disk}3"
+mkfs.ext4 "${disk}4"
 
 # Mounting the partitions
-mount /dev/sda2 /mnt
+mount "${disk}3" /mnt
 mkdir /mnt/boot
-mount /dev/sda1 /mnt/boot
+mount "${disk}1" /mnt/boot
+swapon "${disk}2"
 
 # Prompts for root password, notkeemane password and hostname
 echo "Enter password for root user:"
@@ -75,8 +106,6 @@ grub-mkconfig -o /boot/grub/grub.cfg
 
 # Enable dkms
 systemctl enable dkms.service
-
-EOF
 
 # Unmount all partitions and reboot
 umount -R /mnt
