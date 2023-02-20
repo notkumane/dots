@@ -5,16 +5,16 @@ echo "Available disks:"
 lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop"
 read -p "Enter disk to partition: " disk
 
+# Show available space on disk
+echo "Available space on $disk:"
+lsblk -plnx size -o name,size $disk
+
 # Ensure disk is set as GPT
 parted -s "$disk" mklabel gpt
 
 # Create EFI partition
 parted -s "$disk" mkpart primary fat32 1MiB 513MiB
 parted -s "$disk" set 1 esp on
-
-# Show available space on disk
-echo "Available space on $disk:"
-lsblk -plnx size -o name,size $disk
 
 # Prompt user for partition sizes
 read -p "Enter swap partition size (in GB): " swap_size
@@ -39,7 +39,7 @@ parted -s "$disk" mkpart primary ext4 ${root_end}MiB ${home_end}MiB
 
 # Verify partition sizes do not exceed disk size
 disk_size=$(lsblk -bdno SIZE $disk)
-if [ $((home_end*1024)) -gt $disk_size ]; then
+if [ $((home_end*1024*1024)) -gt $disk_size ]; then
   echo "Error: partition sizes exceed disk size"
   exit 1
 fi
