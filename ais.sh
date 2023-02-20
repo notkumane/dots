@@ -121,17 +121,6 @@ systemctl enable dkms.service
 systemctl enable systemd-timesyncd.service
 systemctl start systemd-timesyncd.service
 
-# Unmount all partitions and reboot
+# Unmount partitions
 umount -R /mnt
-reboot_prompt() {
-  while true; do
-    read -p "Do you want to reboot now? [y/n]: " reboot_choice
-    case "$reboot_choice" in
-      [Yy]* ) reboot; break;;
-      [Nn]* ) exit;;
-      * ) echo "Please answer 'y' or 'n'.";;
-    esac
-  done
-}
-
-reboot_prompt
+reboot
