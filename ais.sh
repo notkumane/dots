@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Prompts for root password, notkeemane password and hostname
+echo "Enter password for root user:"
+read -s ROOT_PASSWD
+
+echo "Enter password for notkeemane user:"
+read -s USER_PASSWD
+
+echo "Enter hostname:"
+read HOSTNAME
 set -e
 
 # Prompt the user to select a drive for partitioning
@@ -41,18 +50,6 @@ mount "${drive}1" /mnt/boot/efi
 
 # Enable swap partition
 swapon "${drive}2"
-
-printf "Partitioning complete.\n"
-
-# Prompts for root password, notkeemane password and hostname
-echo "Enter password for root user:"
-read -s ROOT_PASSWD
-
-echo "Enter password for notkeemane user:"
-read -s USER_PASSWD
-
-echo "Enter hostname:"
-read HOSTNAME
 
 # Installing Arch Linux
 pacman -Sy --noconfirm pacman-contrib
@@ -99,6 +96,11 @@ echo "notkeemane ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 echo "Setting keymap to fi"
 echo "KEYMAP=fi" > /etc/vconsole.conf
 loadkeys fi
+
+# Install and configure packages
+pacman -S --noconfirm xorg plasma-desktop sddm pulseaudio plasma-nm plasma-pa kdeplasma-addons kde-gtk-config
+echo "exec startkde" > /etc/sddm.conf.d/kde.conf
+systemctl enable sddm.service
 
 # Install and configure bootloader
 pacman -S --noconfirm grub efibootmgr
