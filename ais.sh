@@ -106,6 +106,7 @@ echo "notkeemane ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 # Install and configure packages
 sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
+git clone https://aur.archlinux.org/brave-bin.git && cd brave-bin && makepkg -si && cd .. && rm -rf brave-bin
 pacman -S --noconfirm xorg plasma-desktop dolphin konsole kscreen sddm pulseaudio plasma-nm plasma-pa kdeplasma-addons kde-gtk-config 
 systemctl enable sddm
 
