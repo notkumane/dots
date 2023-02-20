@@ -17,17 +17,19 @@ echo "Available space on $disk:"
 lsblk -plnx size -o name,size $disk
 
 # Prompt user for partition sizes
-read -p "Enter swap partition size (in GB): " swap_size
-swap_end=$((513+swap_size*1024))
-parted -s "$disk" mkpart primary linux-swap 513MiB ${swap_end}MiB
-
-# Update available space on disk
-echo "Estimated space left on $disk after swap partition:"
-lsblk -plnx size -o name,size $disk | tail -n 1
+read -p "Do you want a swap partition? [y/n]: " swap_answer
+if [ "$swap_answer" == "y" ]; then
+    read -p "Enter swap partition size (in GB): " swap_size
+    swap_end=$((513+swap_size*1024))
+    parted -s "$disk" mkpart primary linux-swap 513MiB ${swap_end}MiB
+    swap_device="${disk}2"
+else
+    swap_device=""
+fi
 
 read -p "Enter root partition size (in GB): " root_size
-root_end=$((swap_end+root_size*1024))
-parted -s "$disk" mkpart primary ext4 ${swap_end}MiB ${root_end}MiB
+root_end=$((513+root_size*1024))
+parted -s "$disk" mkpart primary ext4 513MiB ${root_end}MiB
 
 # Update available space on disk
 echo "Estimated space left on $disk after root partition:"
@@ -45,7 +47,11 @@ if [ $((home_end*1024)) -gt $disk_size ]; then
 fi
 
 # Formatting the partitions
-mkswap "${disk}2"
+if [ -n "$swap_device" ]; then
+    mkswap "$swap_device"
+    swapon "$swap_device"
+fi
+
 mkfs.ext4 "${disk}3"
 mkfs.ext4 "${disk}4"
 mkfs.fat -F32 "${disk}1"
@@ -54,7 +60,6 @@ mkfs.fat -F32 "${disk}1"
 mount "${disk}3" /mnt
 mkdir /mnt/home
 mount "${disk}4" /mnt/home
-swapon "${disk}2"
 
 # Prompts for root password, notkeemane password and hostname
 echo "Enter password for root user:"
