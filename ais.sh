@@ -48,7 +48,7 @@ mount --mkdir "${drive}1" /mnt/boot
 
 # Installing Arch Linux
 pacman -Sy --noconfirm pacman-contrib
-echo "Server = https://mirrors.kernel.org/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
+echo "Server = http://archlinux.mirror.cdnetworks.net/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
 
 # Enable parallel downloads
 sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
