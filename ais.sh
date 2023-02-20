@@ -31,8 +31,11 @@ mkfs.fat -F32 "${drive}1"
 mkswap "${drive}2"
 mkfs.ext4 "${drive}3"
 
-# Create mount points and mount the partitions
+# Create mount points for root and efi partitions
+mkdir -p /mnt/boot
 mkdir -p /mnt/boot/efi
+
+# Mount the partitions
 mount "${drive}3" /mnt
 mount "${drive}1" /mnt/boot/efi
 
