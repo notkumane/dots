@@ -16,25 +16,18 @@ printf "Please select a drive to partition:\n"
 lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac
 read -rp "Drive: " drive
 
+# Wipe the drive
+printf "Wiping drive %s...\n" "$drive"
+dd if=/dev/zero of="$drive" bs=4M status=progress
+
 # Partition the drive
 wipefs --all "${drive}"
 parted -a opt -s "$drive" mklabel gpt
-existing_partitions=$(parted "$drive" print | awk '/^ / {print $1}')
-if [[ -z "$existing_partitions" ]]; then
-  # No existing partitions, create all partitions from the beginning
-  parted -a opt -s "$drive" mkpart efi fat32 1MiB 512MiB \
+last_partition=$(parted "$drive" unit MiB print free | awk '/Free Space/ {print $1}' | tail -1)
+parted -a opt -s "$drive" mkpart efi fat32 1MiB 512MiB \
         set 1 esp on \
-        mkpart swap linux-swap 512MiB 8.5GiB \
-        mkpart root ext4 8.5GiB 100%
-else
-  # Existing partitions, find the last partition and create new partitions after it
-  last_partition=$(echo "$existing_partitions" | tail -n 1)
-  last_partition_end=$(parted "$drive" unit MiB print free | awk "/$last_partition/ {print \$3}")
-  parted -a opt -s "$drive" mkpart efi fat32 1MiB "$((last_partition_end + 1))MiB" \
-        set 2 esp on \
-        mkpart swap linux-swap "$((last_partition_end + 1))MiB" "$((last_partition_end + 8.5))MiB" \
-        mkpart root ext4 "$((last_partition_end + 8.5))MiB" 100%
-fi
+        mkpart swap linux-swap 512MiB "$((last_partition + 1))MiB" \
+        mkpart root ext4 "$((last_partition + 1))MiB" 100%
 
 # Format the partitions
 mkfs.fat -F32 "${drive}1"
@@ -97,7 +90,6 @@ echo "notkeemane ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 # Install and configure packages
 sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
-git clone https://aur.archlinux.org/brave-bin.git && cd brave-bin && makepkg -si && cd .. && rm -rf brave-bin
 pacman -S --noconfirm xorg plasma-desktop dolphin konsole kscreen sddm pulseaudio plasma-nm plasma-pa kdeplasma-addons kde-gtk-config 
 systemctl enable sddm
 
