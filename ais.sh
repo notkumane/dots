@@ -1,16 +1,30 @@
 #!/bin/bash
 
+set -e
+
 # Prompt the user to select a drive for partitioning
-echo "Please select a drive to partition:"
+printf "Please select a drive to partition:\n"
 lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac
-read -p "Drive: " drive
+read -rp "Drive: " drive
 
 # Partition the drive
-parted -a opt -s "$drive" mklabel gpt \
-      mkpart efi fat32 1MiB 512MiB \
-      set 1 esp on \
-      mkpart swap linux-swap 512MiB 8.5GiB \
-      mkpart root ext4 8.5GiB 100%
+parted -a opt -s "$drive" mklabel gpt
+existing_partitions=$(parted "$drive" print | awk '/^ / {print $1}')
+if [[ -z "$existing_partitions" ]]; then
+  # No existing partitions, create all partitions from the beginning
+  parted -a opt -s "$drive" mkpart efi fat32 1MiB 512MiB \
+        set 1 esp on \
+        mkpart swap linux-swap 512MiB 8.5GiB \
+        mkpart root ext4 8.5GiB 100%
+else
+  # Existing partitions, find the last partition and create new partitions after it
+  last_partition=$(echo "$existing_partitions" | tail -n 1)
+  last_partition_end=$(parted "$drive" unit MiB print free | awk "/$last_partition/ {print \$3}")
+  parted -a opt -s "$drive" mkpart efi fat32 1MiB "$((last_partition_end + 1))MiB" \
+        set 2 esp on \
+        mkpart swap linux-swap "$((last_partition_end + 1))MiB" "$((last_partition_end + 8.5))MiB" \
+        mkpart root ext4 "$((last_partition_end + 8.5))MiB" 100%
+fi
 
 # Format the partitions
 mkfs.fat -F32 "${drive}1"
@@ -25,7 +39,7 @@ mount "${drive}1" /mnt/boot/efi
 # Enable swap partition
 swapon "${drive}2"
 
-echo "Partitioning complete."
+printf "Partitioning complete.\n"
 
 # Prompts for root password, notkeemane password and hostname
 echo "Enter password for root user:"
