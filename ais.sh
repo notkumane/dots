@@ -1,65 +1,49 @@
 #!/bin/bash
 
-# Ask user for disk device to partition
-echo "Available disks:"
-lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop"
-read -p "Enter disk to partition: " disk
+# Prompt the user to select the device to partition
+echo "Please select the device to partition:"
+lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac
+read -rp "Device: " device
 
-# Ensure disk is set as GPT
-parted -s "$disk" mklabel gpt
+echo "Partitioning $device..."
 
 # Create EFI partition
-parted -s "$disk" mkpart primary fat32 1MiB 513MiB
-parted -s "$disk" set 1 esp on
+echo "Creating EFI partition..."
+parted -s "$device" mklabel gpt
+parted -s "$device" mkpart primary fat32 1MiB 1GiB
+parted -s "$device" set 1 esp on
 
-# Show available space on disk
-echo "Available space on $disk:"
-lsblk -plnx size -o name,size $disk
+# Ask user about swap partition
+echo "Do you want to create a swap partition? (y/n)"
+read -r swap_answer
 
-# Prompt user for partition sizes
-read -p "Do you want a swap partition? [y/n]: " swap_answer
-if [ "$swap_answer" == "y" ]; then
-    read -p "Enter swap partition size (in GB): " swap_size
-    swap_end=$((513+swap_size*1024))
-    parted -s "$disk" mkpart primary linux-swap 513MiB ${swap_end}MiB
-    swap_device="${disk}2"
-else
-    swap_device=""
+if [[ $swap_answer == "y" ]]; then
+  # Create swap partition
+  echo "Enter the size of the swap partition (e.g. 2G)"
+  read -r swap_size
+  echo "Creating swap partition..."
+  parted -s "$device" mkpart primary linux-swap 1GiB $swap_size
+  mkswap "${device}2"
+  swapon "${device}2"
 fi
 
-read -p "Enter root partition size (in GB): " root_size
-root_end=$((513+root_size*1024))
-parted -s "$disk" mkpart primary ext4 513MiB ${root_end}MiB
+# Create root partition
+echo "Creating root partition..."
+parted -s "$device" mkpart primary ext4 $((1 + ${swap_size:-0}))GiB 11GiB
+mkfs.ext4 "${device}3"
 
-# Update available space on disk
-echo "Estimated space left on $disk after root partition:"
-lsblk -plnx size -o name,size $disk | tail -n 1
+# Allocate all remaining space to home partition
+echo "Creating home partition..."
+parted -s "$device" mkpart primary ext4 11GiB 100%
+mkfs.ext4 "${device}4"
 
-read -p "Enter home partition size (in GB): " home_size
-home_end=$((root_end+home_size*1024))
-parted -s "$disk" mkpart primary ext4 ${root_end}MiB ${home_end}MiB
-
-# Verify partition sizes do not exceed disk size
-disk_size=$(lsblk -bdno SIZE $disk)
-if [ $((home_end*1024)) -gt $disk_size ]; then
-  echo "Error: partition sizes exceed disk size"
-  exit 1
-fi
-
-# Formatting the partitions
-if [ -n "$swap_device" ]; then
-    mkswap "$swap_device"
-    swapon "$swap_device"
-fi
-
-mkfs.ext4 "${disk}3"
-mkfs.ext4 "${disk}4"
-mkfs.fat -F32 "${disk}1"
-
-# Mounting the partitions
-mount "${disk}3" /mnt
+# Mount the partitions
+echo "Mounting partitions..."
+mount "${device}3" /mnt
+mkdir /mnt/boot
+mount "${device}1" /mnt/boot
 mkdir /mnt/home
-mount "${disk}4" /mnt/home
+mount "${device}4" /mnt/home
 
 # Prompts for root password, notkeemane password and hostname
 echo "Enter password for root user:"
