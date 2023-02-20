@@ -18,7 +18,7 @@ read -rp "Drive: " drive
 
 # Wipe the drive
 printf "Wiping drive %s...\n" "$drive"
-dd if=/dev/zero of="$drive" bs=4M status=progress
+shred --verbose --random-source=/dev/urandom "$drive"
 
 # Partition the drive
 wipefs --all "${drive}"
