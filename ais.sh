@@ -5,26 +5,27 @@ echo "Please select a drive to partition:"
 lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac
 read -p "Drive: " drive
 
-# Create the EFI partition
-echo "Creating EFI partition..."
-echo -e "n\np\n1\n\n+512M\nt\n1\n1\nw" | fdisk "$drive"
+# Partition the drive
+parted -a opt -s "$drive" mklabel gpt \
+      mkpart efi fat32 1MiB 512MiB \
+      set 1 esp on \
+      mkpart swap linux-swap 512MiB 8.5GiB \
+      mkpart root ext4 8.5GiB 100%
+
+# Format the partitions
 mkfs.fat -F32 "${drive}1"
-
-# Create the Swap partition
-echo "Creating Swap partition..."
-echo -e "n\np\n2\n\n+8G\nt\n2\n82\nw" | fdisk "$drive"
 mkswap "${drive}2"
-swapon "${drive}2"
-
-# Create the Root/Home partition
-echo "Creating Root/Home partition..."
-echo -e "n\np\n3\n\n\nw" | fdisk "$drive"
 mkfs.ext4 "${drive}3"
+
+# Enable swap partition
+swapon "${drive}2"
 
 # Mount the partitions
 mount "${drive}3" /mnt
 mkdir /mnt/boot
 mount "${drive}1" /mnt/boot/efi
+
+echo "Partitioning complete."
 
 # Prompts for root password, notkeemane password and hostname
 echo "Enter password for root user:"
