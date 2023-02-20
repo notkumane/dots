@@ -20,18 +20,18 @@ read -r swap_answer
 
 if [[ $swap_answer == "y" ]]; then
   # Create swap partition
-  echo "Enter the size of the swap partition in gigabytes (e.g. 2)"
+  echo "Enter the size of the swap partition in GB (e.g. 2)"
   read -r swap_size
+  swap_size=$(echo "$swap_size * 1024" | bc)
   echo "Creating swap partition..."
-  swap_size_mb=$((swap_size*1024))
-  parted -s "$device" mkpart primary linux-swap 1000MiB "${swap_size_mb}MB"
+  parted -s "$device" mkpart primary linux-swap 1000MiB "${swap_size}MiB"
   mkswap "${device}2"
   swapon "${device}2"
 fi
 
 # Create root partition
 echo "Creating root partition..."
-parted -s "$device" mkpart primary ext4 "${swap_size_mb:-0}MB" 10000MB
+parted -s "$device" mkpart primary ext4 "${swap_size:-0}MB" 20000MB
 mkfs.ext4 "${device}3"
 
 # Allocate all remaining space to home partition
