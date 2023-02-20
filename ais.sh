@@ -38,20 +38,14 @@ fi
 # Format the partitions
 mkfs.fat -F32 "${drive}1"
 mkswap "${drive}2"
+swapon "${drive}2"
 mkfs.ext4 "${drive}3"
 
 # Create mount points for root and efi partitions
-mkdir -p /mnt
-chmod 755 /mnt
-chown root:root /mnt
-mkdir -p /mnt/boot/efi
-
-# Mount the partitions
+mkdir /mnt
 mount "${drive}3" /mnt
+mkdir -p /mnt/boot/efi
 mount "${drive}1" /mnt/boot/efi
-
-# Enable swap partition
-swapon "${drive}2"
 
 # Installing Arch Linux
 pacman -Sy --noconfirm pacman-contrib
