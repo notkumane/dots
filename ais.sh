@@ -53,7 +53,7 @@ echo "Server = https://mirrors.lavatech.top/archlinux/\$repo/os/\$arch" >> /etc/
 # Enable parallel downloads
 sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
 
-pacstrap /mnt base base-devel linux-zen linux-zen-headers intel-ucode networkmanager neovim dkms nvidia-dkms
+pacstrap /mnt base base-devel linux-zen linux-zen-headers intel-ucode networkmanager nvidia
 
 # Generating the fstab file
 genfstab -U /mnt >> /mnt/etc/fstab
