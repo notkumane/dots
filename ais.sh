@@ -11,6 +11,8 @@ echo "Enter hostname:"
 read HOSTNAME
 set -e
 
+#!/bin/bash
+
 # Prompt the user to select a drive for partitioning
 printf "Please select a drive to partition:\n"
 lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac
@@ -18,7 +20,7 @@ read -rp "Drive: " drive
 
 # Wipe the drive with hdparm
 printf "Wiping drive %s...\n" "$drive"
-hdparm --security-erase null "$drive"
+hdparm --security-erase-enhanced "$drive"
 
 # Partition the drive
 parted -a opt -s "$drive" mklabel gpt
