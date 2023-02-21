@@ -9,36 +9,47 @@ read -s USER_PASSWD
 
 echo "Enter hostname:"
 read HOSTNAME
-set -e
 
-#!/bin/bash
+# List available drives
+printf "Available drives:\n"
+lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | awk '{print $1, "(" $2 ")"}'
 
 # Prompt the user to select a drive for partitioning
-printf "Please select a drive to partition:\n"
-lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac
-read -rp "Drive: " drive
+read -rp "Enter the name of the drive to partition: " drive
 
-# Wipe the drive with dd
-printf "Wiping drive %s...\n" "$drive"
-dd if=/dev/zero of="$drive" bs=1M count=100
+# Verify that the selected drive exists
+if ! [ -b "/dev/$drive" ]; then
+    printf "Drive %s does not exist.\n" "$drive"
+    exit 1
+fi
 
-# Partition the drive
-parted -a opt -s "$drive" mklabel gpt
-last_partition=$(parted "$drive" unit MiB print free | awk '/Free Space/ {print $1}' | tail -1)
-parted -a opt -s "$drive" mkpart efi fat32 1MiB 512MiB \
-        set 1 esp on \
-        mkpart swap linux-swap 512MiB "$((last_partition + 1))MiB" \
-        mkpart root ext4 "$((last_partition + 1))MiB" 100%
+# Wipe the drive with wipefs
+printf "Wiping drive %s...\n" "/dev/$drive"
+wipefs -a "/dev/$drive"
+
+# Partition the drive with gdisk
+printf "Partitioning drive %s...\n" "/dev/$drive"
+printf "Creating partition 1 (EFI System Partition)...\n"
+sgdisk -n 1:0:+512MiB -t 1:EF00 "/dev/$drive"
+printf "Creating partition 2 (Linux Swap)...\n"
+sgdisk -n 2:0:+2GiB -t 2:8200 "/dev/$drive"
+printf "Creating partition 3 (Linux Filesystem)...\n"
+sgdisk -n 3:0:0 -t 3:8300 "/dev/$drive"
 
 # Format the partitions
-mkfs.fat -F32 "${drive}1"
-mkswap "${drive}2"
-swapon "${drive}2"
-mkfs.ext4 "${drive}3"
+printf "Formatting partitions...\n"
+mkfs.fat -F32 "/dev/${drive}1"
+mkswap "/dev/${drive}2"
+mkfs.ext4 "/dev/${drive}3"
 
-# Create mount points for root and efi partitions
-mount --mkdir "${drive}3" /mnt
-mount --mkdir "${drive}1" /mnt/boot
+# Mount the partitions
+printf "Mounting partitions...\n"
+mount "/dev/${drive}3" /mnt
+swapon "/dev/${drive}2"
+mkdir /mnt/boot
+mount "/dev/${drive}1" /mnt/boot
+
+printf "Done.\n"
 
 pacman -Sy --noconfirm pacman-contrib
 echo "Server = http://mirror.neuf.no/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
