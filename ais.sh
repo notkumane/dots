@@ -50,7 +50,7 @@ printf "Partitioning drive %s...\n" "$drive"
 printf "Creating partition 1 (EFI System Partition)...\n"
 sgdisk -n 1:0:+512MiB -t 1:EF00 "$drive"
 printf "Creating partition 2 (Linux Swap)...\n"
-sgdisk -n 2:0:+2GiB -t 2:8200 "$drive"
+sgdisk -n 2:0:+8GiB -t 2:8200 "$drive"
 printf "Creating partition 3 (Linux Filesystem)...\n"
 sgdisk -n 3:0:0 -t 3:8300 "$drive"
 
@@ -128,7 +128,6 @@ echo "notkeemane ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 # Install and configure packages
 sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
 pacman -S --noconfirm xorg nvidia brave plasma-desktop dolphin konsole kscreen sddm pulseaudio plasma-nm plasma-pa kdeplasma-addons kde-gtk-config 
-systemctl enable sddm
 
 # Install and configure bootloader
 pacman -S --noconfirm grub efibootmgr
@@ -144,6 +143,8 @@ EndSection' | tee /etc/X11/xorg.conf.d/00-keyboard.conf
 
 # Set the keymap to "fi" in vconsole.conf
 echo "KEYMAP=fi" >> /etc/vconsole.conf
+
+systemctl enable sddm
 
 EOF
 
