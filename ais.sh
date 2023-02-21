@@ -127,7 +127,8 @@ echo "notkeemane ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 # Install and configure packages
 sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
-pacman -S --noconfirm xorg nvidia brave plasma-desktop dolphin konsole kscreen sddm pulseaudio plasma-nm plasma-pa kdeplasma-addons kde-gtk-config 
+pacman -S --noconfirm xorg nvidia plasma-desktop dolphin konsole kscreen sddm pulseaudio plasma-nm plasma-pa kdeplasma-addons kde-gtk-config 
+systemctl enable sddm
 
 # Install and configure bootloader
 pacman -S --noconfirm grub efibootmgr
@@ -143,8 +144,6 @@ EndSection' | tee /etc/X11/xorg.conf.d/00-keyboard.conf
 
 # Set the keymap to "fi" in vconsole.conf
 echo "KEYMAP=fi" >> /etc/vconsole.conf
-
-systemctl enable sddm
 
 EOF
 
