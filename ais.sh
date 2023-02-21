@@ -12,10 +12,16 @@ read HOSTNAME
 
 # List available drives
 printf "Available drives:\n"
-lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | awk '{print $1, "(" $2 ")"}'
+options=( $(lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | awk '{print $1 " (" $2 ")"}') )
 
 # Prompt the user to select a drive for partitioning
-read -rp "Enter the name of the drive to partition: " drive
+PS3="Enter the number of the drive to partition: "
+select opt in "${options[@]}"; do
+    drive=$(echo "$opt" | awk '{print $1}')
+    if [ -n "$drive" ]; then
+        break
+    fi
+done
 
 # Verify that the selected drive exists
 if ! [ -b "/dev/$drive" ]; then
