@@ -132,7 +132,7 @@ cd /tmp
 sudo -u notkeemane git clone https://aur.archlinux.org/yay.git
 cd yay
 sudo -u notkeemane makepkg -si --noconfirm
-
+sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
 # Install packages with yay
 sudo -u notkeemane yay -S --noconfirm brave-bin xorg nvidia plasma-desktop dolphin konsole kscreen sddm pulseaudio plasma-nm plasma-pa kdeplasma-addons kde-gtk-config
 
