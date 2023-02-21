@@ -12,29 +12,51 @@ read HOSTNAME
 
 # List available drives
 printf "Available drives:\n"
-options=( $(lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | awk '{print $1 " (" $2 ")"}') )
+drives=( $(lsblk -dpnx -o name | grep -Ev "boot|rpmb|loop") )
 
-# Prompt the user to select a drive for partitioning
-PS3="Enter the number of the drive to partition: "
-select opt in "${options[@]}"; do
-    drive=$(echo "$opt" | awk '{print $1}')
-    if [ -n "$drive" ]; then
-        break
-    fi
+# Check if any drives are available
+if [ ${#drives[@]} -eq 0 ]; then
+    printf "No drives found.\n"
+    exit 1
+fi
+
+# Display the list of available drives
+for i in "${!drives[@]}"; do
+    printf "%d. %s\n" "$i" "${drives[$i]}"
 done
 
+# Prompt the user to select a drive for partitioning
+read -rp "Enter the number of the drive to partition: " drive_num
+
+# Verify that the selected drive number is valid
+if ! [[ "$drive_num" =~ ^[0-9]+$ ]] || [ "$drive_num" -lt 0 ] || [ "$drive_num" -ge ${#drives[@]} ]; then
+    printf "Invalid drive number.\n"
+    exit 1
+fi
+
+# Get the name of the selected drive
+drive="${drives[$drive_num]}"
+
+# Confirm the selected drive with the user
+read -rp "You have selected $drive for partitioning. Are you sure? (y/n): " confirm
+
+if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
+    printf "Partitioning cancelled.\n"
+    exit 1
+fi
+
 # Verify that the selected drive exists
-if ! [ -b "/dev/$drive" ]; then
+if ! [ -b "$drive" ]; then
     printf "Drive %s does not exist.\n" "$drive"
     exit 1
 fi
 
 # Wipe the drive with wipefs
-printf "Wiping drive %s...\n" "/dev/$drive"
+printf "Wiping drive %s...\n" "$drive"
 wipefs -a "/dev/$drive"
 
 # Partition the drive with gdisk
-printf "Partitioning drive %s...\n" "/dev/$drive"
+printf "Partitioning drive %s...\n" "$drive"
 printf "Creating partition 1 (EFI System Partition)...\n"
 sgdisk -n 1:0:+512MiB -t 1:EF00 "/dev/$drive"
 printf "Creating partition 2 (Linux Swap)...\n"
