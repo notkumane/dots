@@ -124,13 +124,12 @@ echo "notkeemane:$USER_PASSWD" | chpasswd
 # Set up sudo for notkeemane
 echo "notkeemane ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-# Install base-devel and git
-pacman -S --noconfirm git
+# Install dependencies for yay
+pacman -S --needed --noconfirm git
 
-# Install yay
+# Build and install yay
 cd /tmp
-git clone https://aur.archlinux.org/yay.git
-chown -R notkeemane:yay ./yay
+sudo -u notkeemane git clone https://aur.archlinux.org/yay.git
 cd yay
 sudo -u notkeemane makepkg -si --noconfirm
 
