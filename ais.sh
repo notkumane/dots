@@ -43,29 +43,28 @@ fi
 
 # Wipe the drive with wipefs
 printf "Wiping drive %s...\n" "$drive"
-wipefs -a "/dev/$drive"
+wipefs -a "$drive"
 
 # Partition the drive with gdisk
 printf "Partitioning drive %s...\n" "$drive"
 printf "Creating partition 1 (EFI System Partition)...\n"
-sgdisk -n 1:0:+512MiB -t 1:EF00 "/dev/$drive"
+sgdisk -n 1:0:+512MiB -t 1:EF00 "$drive"
 printf "Creating partition 2 (Linux Swap)...\n"
-sgdisk -n 2:0:+2GiB -t 2:8200 "/dev/$drive"
+sgdisk -n 2:0:+2GiB -t 2:8200 "$drive"
 printf "Creating partition 3 (Linux Filesystem)...\n"
-sgdisk -n 3:0:0 -t 3:8300 "/dev/$drive"
+sgdisk -n 3:0:0 -t 3:8300 "$drive"
 
 # Format the partitions
 printf "Formatting partitions...\n"
-mkfs.fat -F32 "/dev/${drive}1"
-mkswap "/dev/${drive}2"
-mkfs.ext4 "/dev/${drive}3"
+mkfs.fat -F32 "${drive}1"
+mkswap "${drive}2"
+swapon "${drive}2"
+mkfs.ext4 "${drive}3"
 
 # Mount the partitions
 printf "Mounting partitions...\n"
-mount "/dev/${drive}3" /mnt
-swapon "/dev/${drive}2"
-mkdir /mnt/boot
-mount "/dev/${drive}1" /mnt/boot
+mount --mkdir "${drive}3" /mnt
+mount --mkdir "${drive}1" /mnt/boot
 
 # Prompts for root password, notkeemane password and hostname
 echo "Enter password for root user:"
