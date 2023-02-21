@@ -1,15 +1,5 @@
 #!/bin/bash
 
-# Prompts for root password, notkeemane password and hostname
-echo "Enter password for root user:"
-read -s ROOT_PASSWD
-
-echo "Enter password for notkeemane user:"
-read -s USER_PASSWD
-
-echo "Enter hostname:"
-read HOSTNAME
-
 # List available drives
 printf "Available drives:\n"
 drives=( $(lsblk -dpn | grep -Ev "boot|rpmb|loop" | awk '{print $1}') )
@@ -77,7 +67,15 @@ swapon "/dev/${drive}2"
 mkdir /mnt/boot
 mount "/dev/${drive}1" /mnt/boot
 
-printf "Done.\n"
+# Prompts for root password, notkeemane password and hostname
+echo "Enter password for root user:"
+read -s ROOT_PASSWD
+
+echo "Enter password for notkeemane user:"
+read -s USER_PASSWD
+
+echo "Enter hostname:"
+read HOSTNAME
 
 pacman -Sy --noconfirm pacman-contrib
 echo "Server = http://mirror.neuf.no/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
@@ -94,7 +92,7 @@ echo "Server = https://mirrors.lavatech.top/archlinux/\$repo/os/\$arch" >> /etc/
 # Enable parallel downloads
 sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
 
-pacstrap /mnt base base-devel linux-zen linux-zen-headers intel-ucode networkmanager nvidia
+pacstrap /mnt base base-devel linux-zen linux-zen-headers intel-ucode networkmanager
 
 # Generating the fstab file
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -130,7 +128,7 @@ echo "notkeemane ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 # Install and configure packages
 sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
-pacman -S --noconfirm xorg plasma-desktop dolphin konsole kscreen sddm pulseaudio plasma-nm plasma-pa kdeplasma-addons kde-gtk-config 
+pacman -S --noconfirm xorg nvidia brave plasma-desktop dolphin konsole kscreen sddm pulseaudio plasma-nm plasma-pa kdeplasma-addons kde-gtk-config 
 systemctl enable sddm
 
 # Install and configure bootloader
@@ -144,6 +142,9 @@ echo 'Section "InputClass"
     MatchIsKeyboard "on"
     Option "XkbLayout" "fi"
 EndSection' | tee /etc/X11/xorg.conf.d/00-keyboard.conf
+
+# Set the keymap to "fi" in vconsole.conf
+echo "KEYMAP=fi" >> /etc/vconsole.conf
 
 EOF
 
