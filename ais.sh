@@ -12,7 +12,7 @@ read HOSTNAME
 
 # List available drives
 printf "Available drives:\n"
-drives=( $(lsblk -dpnx -o name | grep -Ev "boot|rpmb|loop") )
+drives=( $(lsblk -dpn | grep -Ev "boot|rpmb|loop" | awk '{print $1}') )
 
 # Check if any drives are available
 if [ ${#drives[@]} -eq 0 ]; then
