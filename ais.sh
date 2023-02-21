@@ -96,7 +96,6 @@ pacstrap /mnt base base-devel linux-zen linux-zen-headers intel-ucode networkman
 # Generating the fstab file
 genfstab -U /mnt >> /mnt/etc/fstab
 
-# Chrooting into the new system
 arch-chroot /mnt /bin/bash <<EOF
 
 # Set the time zone and hardware clock
@@ -125,9 +124,20 @@ echo "notkeemane:$USER_PASSWD" | chpasswd
 # Set up sudo for notkeemane
 echo "notkeemane ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-# Install and configure packages
-sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
-pacman -S --noconfirm xorg nvidia plasma-desktop dolphin konsole kscreen sddm pulseaudio plasma-nm plasma-pa kdeplasma-addons kde-gtk-config 
+# Install base-devel and git
+pacman -S --noconfirm git
+
+# Install yay
+cd /tmp
+git clone https://aur.archlinux.org/yay.git
+chown -R notkeemane:yay ./yay
+cd yay
+sudo -u notkeemane makepkg -si --noconfirm
+
+# Install packages with yay
+sudo -u notkeemane yay -S --noconfirm brave-bin xorg nvidia plasma-desktop dolphin konsole kscreen sddm pulseaudio plasma-nm plasma-pa kdeplasma-addons kde-gtk-config
+
+# Enable SDDM
 systemctl enable sddm
 
 # Install and configure bootloader
@@ -135,7 +145,7 @@ pacman -S --noconfirm grub efibootmgr
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
 
-# set the keymap to fi
+# Set the keymap to fi
 echo 'Section "InputClass"
     Identifier "system-keyboard"
     MatchIsKeyboard "on"
@@ -152,3 +162,4 @@ umount -R /mnt
 
 # Reboot
 reboot
+
