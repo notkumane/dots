@@ -124,7 +124,7 @@ echo "notkeemane:$USER_PASSWD" | chpasswd
 # Set up sudo for notkeemane
 echo "notkeemane ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-# Install dependencies for yay
+# Install Git
 pacman -S --needed --noconfirm git
 
 # Build and install yay
@@ -137,17 +137,15 @@ sudo -u notkeemane makepkg -si --noconfirm
 cd /tmp
 git clone https://github.com/notkumane/dots
 cd dots
-mkdir -p /mnt/home/notkeemane/.config/i3
-
-# Copy files to directories
-cp .xinitrc .xprofile .zshenv /mnt/home/notkeemane
-cp .zsh /mnt/home/notkeemane/.zsh
-cp config /mnt/home/notkeemane/.config/i3
-cp starship.toml picom.conf /mnt/home/notkeemane/.config
+cp .xinitrc .xprofile .zshenv /home/notkeemane
+cp .zsh /home/notkeemane/.zsh
+mkdir -p /home/notkeemane/.config/i3
+cp config /home/notkeemane/.config/i3
+cp starship.toml picom.conf /home/notkeemane/.config
 
 # Download ZSH plugin
-cd /mnt/home/notkeemane/.zsh
-sudo -u notkeemane git clone https://github.com/zsh-users/zsh-syntax-highlighting.git
+cd /home/notkeemane/.zsh
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git
 
 # Install packages with yay
 yay -S --needed --noconfirm wine-staging giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls \
