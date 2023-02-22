@@ -138,7 +138,8 @@ cd /tmp
 git clone https://github.com/notkumane/dots
 cd dots
 cp .xinitrc .xprofile .zshenv /home/notkeemane
-cp .zsh /home/notkeemane/.zsh
+mkdir -p /home/notkeemane/.zsh
+cp -r .zsh /home/notkeemane/.zsh
 mkdir -p /home/notkeemane/.config/i3
 cp config /home/notkeemane/.config/i3
 cp starship.toml picom.conf /home/notkeemane/.config
@@ -155,7 +156,7 @@ sqlite lib32-sqlite libxcomposite lib32-libxcomposite libxinerama lib32-libgcryp
 ncurses lib32-ncurses ocl-icd lib32-ocl-icd libxslt lib32-libxslt libva lib32-libva gtk3 \
 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader lutris steam
 
-yay -S --noconfirm nvidia xorg-server xorg-xinit xorg-xset xorg-xrandr i3-gaps nitrogen xfce4-panel xfce4-notifyd autotiling brave-bin gnome-screenshot xfce4-terminal thunar xarchiver gvfs unrar picom xdg-utils xdg-user-dirs ristretto lxappearance zsh exa htop xfce4-i3-workspaces-plugin-git starship gamemode
+yay -S --noconfirm nvidia xorg-server xorg-xinit xorg-xset xorg-xrandr i3-gaps nitrogen xfce4-panel xfce4-notifyd autotiling brave-bin gnome-screenshot xfce4-terminal thunar xarchiver gvfs unrar picom xdg-utils xdg-user-dirs ristretto lxappearance zsh neovim exa htop xfce4-i3-workspaces-plugin-git starship gamemode
 
 # Install and configure bootloader
 pacman -S --noconfirm grub efibootmgr
@@ -172,6 +173,7 @@ EndSection' | tee /etc/X11/xorg.conf.d/00-keyboard.conf
 # Set the keymap to "fi" in vconsole.conf
 echo "KEYMAP=fi" >> /etc/vconsole.conf
 
+chsh -s $(which zsh) notkeemane
 EOF
 
 # Unmount partitions
