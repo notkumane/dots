@@ -135,10 +135,13 @@ sudo -u notkeemane makepkg -si --noconfirm
 
 # Download configs
 cd /tmp
-sudo -u notkeemane git clone https://github.com/notkumane/dots
+git clone https://github.com/notkumane/dots
 cd dots
-cp -r .xinitrc .xprofile .zshenv /mnt/home/notkeemane
-cp -r .zsh /mnt/home/notkeemane/.zsh
+mkdir -p /mnt/home/notkeemane/.config/i3
+
+# Copy files to directories
+cp .xinitrc .xprofile .zshenv /mnt/home/notkeemane
+cp .zsh /mnt/home/notkeemane/.zsh
 cp config /mnt/home/notkeemane/.config/i3
 cp starship.toml picom.conf /mnt/home/notkeemane/.config
 
@@ -154,7 +157,7 @@ sqlite lib32-sqlite libxcomposite lib32-libxcomposite libxinerama lib32-libgcryp
 ncurses lib32-ncurses ocl-icd lib32-ocl-icd libxslt lib32-libxslt libva lib32-libva gtk3 \
 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader lutris steam
 
-yay -S --noconfirm nvidia xorg-server xorg-xinit xorg-xset xorg-xrandr i3-gaps nitrogen xfce4-panel xfce4-notifyd autotiling brave-bin gnome-screenshot xfce4-terminal xfce4-popup-whiskermenu thunar xarchiver gvfs unrar picom xdg-utils xdg-user-dirs pa-applet network-manager-applet-git ristretto lxappearance zsh exa htop xfce4-i3-workspaces-plugin-git starship gamemode
+yay -S --noconfirm nvidia xorg-server xorg-xinit xorg-xset xorg-xrandr i3-gaps nitrogen xfce4-panel xfce4-notifyd autotiling brave-bin gnome-screenshot xfce4-terminal thunar xarchiver gvfs unrar picom xdg-utils xdg-user-dirs ristretto lxappearance zsh exa htop xfce4-i3-workspaces-plugin-git starship gamemode
 
 # Install and configure bootloader
 pacman -S --noconfirm grub efibootmgr
