@@ -1,5 +1,4 @@
 #zsh-config
-source /home/notkumane/.zsh/syntax-highlighting/zsh-syntax-highlighting.zsh
 eval "$(starship init zsh)"
 HISTFILE=~/.zsh/history
 HISTSIZE=10000
@@ -22,3 +21,5 @@ function cd {
 alias v="sudo nvim"
 alias ls="exa -a -s type --icons --grid"
 alias rr="v ~/.config/i3/config"
+
+source /home/notkeemane/.zsh/syntax-highlighting/zsh-syntax-highlighting.zsh
