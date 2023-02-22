@@ -129,13 +129,13 @@ pacman -S --needed --noconfirm git
 
 # Build and install yay
 cd /tmp
-git clone https://aur.archlinux.org/yay.git
+sudo -u notkeemane git clone https://aur.archlinux.org/yay.git
 cd yay
-makepkg -si --noconfirm
+sudo -u notkeemane makepkg -si --noconfirm
 
 # Download configs
 cd /tmp
-git clone https://github.com/notkumane/dots
+sudo -u notkeemane git clone https://github.com/notkumane/dots
 cd dots
 cp -r .xinitrc .xprofile .zshenv /mnt/home/notkeemane
 cp -r .zsh /mnt/home/notkeemane/.zsh
@@ -144,7 +144,7 @@ cp starship.toml picom.conf /mnt/home/notkeemane/.config
 
 # Download ZSH plugin
 cd /mnt/home/notkeemane/.zsh
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git
+sudo -u notkeemane git clone https://github.com/zsh-users/zsh-syntax-highlighting.git
 
 # Install packages with yay
 yay -S --needed --noconfirm wine-staging giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls \
