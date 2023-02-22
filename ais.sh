@@ -129,32 +129,32 @@ pacman -S --needed --noconfirm git
 
 # Build and install yay
 cd /tmp
-sudo -u notkeemane git clone https://aur.archlinux.org/yay.git
+git clone https://aur.archlinux.org/yay.git
 cd yay
-sudo -u notkeemane makepkg -si --noconfirm
+makepkg -si --noconfirm
 
 # Download configs
 cd /tmp
-sudo -u notkeemane git clone https://github.com/notkumane/dots
+git clone https://github.com/notkumane/dots
 cd dots
-cp -r .xinitrc .xprofile .zshenv /home/notkeemane
-cp -r .zsh /home/notkeemane/.zsh
-cp config /home/notkeemane/.config/i3
-cp starship.toml picom.conf /home/notkeemane/.config
+cp -r .xinitrc .xprofile .zshenv /mnt/home/notkeemane
+cp -r .zsh /mnt/home/notkeemane/.zsh
+cp config /mnt/home/notkeemane/.config/i3
+cp starship.toml picom.conf /mnt/home/notkeemane/.config
 
 # Download ZSH plugin
-cd /home/notkeemane/.zsh
-sudo -u notkeemane git clone https://github.com/zsh-users/zsh-syntax-highlighting.git
+cd /mnt/home/notkeemane/.zsh
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git
 
 # Install packages with yay
-sudo -u notkeemane yay -S --needed --noconfirm wine-staging giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls \
+yay -S --needed --noconfirm wine-staging giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls \
 mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse libgpg-error \
 lib32-libgpg-error alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo \
 sqlite lib32-sqlite libxcomposite lib32-libxcomposite libxinerama lib32-libgcrypt libgcrypt lib32-libxinerama \
 ncurses lib32-ncurses ocl-icd lib32-ocl-icd libxslt lib32-libxslt libva lib32-libva gtk3 \
 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader lutris steam
 
-sudo -u notkeemane yay -S --noconfirm nvidia xorg-server xorg-xinit xorg-xset xorg-xrandr i3-gaps nitrogen xfce4-panel xfce4-notifyd autotiling brave-bin gnome-screenshot xfce4-terminal xfce4-popup-whiskermenu thunar xarchiver gvfs unrar picom xdg-utils xdg-user-dirs pa-applet network-manager-applet-git ristretto lxappearance zsh exa htop xfce4-i3-workspaces-plugin-git starship gamemode
+yay -S --noconfirm nvidia xorg-server xorg-xinit xorg-xset xorg-xrandr i3-gaps nitrogen xfce4-panel xfce4-notifyd autotiling brave-bin gnome-screenshot xfce4-terminal xfce4-popup-whiskermenu thunar xarchiver gvfs unrar picom xdg-utils xdg-user-dirs pa-applet network-manager-applet-git ristretto lxappearance zsh exa htop xfce4-i3-workspaces-plugin-git starship gamemode
 
 # Install and configure bootloader
 pacman -S --noconfirm grub efibootmgr
