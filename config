@@ -34,9 +34,10 @@ bindsym $mod+b exec pgrep xfce4-panel && xfce4-panel -q || xfce4-panel --disable
 #i3-control
 bindsym $mod+Shift+e exec i3-msg restart
 bindsym $mod+Shift+c reload
+bindsym $mod+Shift+Esc exec i3-msg exit
 
 #Scratchpad
-bindsym $mod+c move scratchpad 
+bindsym $mod+c move scratchpad
 bindsym $mod+v scratchpad show
 
 #Color

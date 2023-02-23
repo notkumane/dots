@@ -3,4 +3,4 @@ setxkbmap fi &
 xset s off &
 xset -dpms &
 xset s noblank &
-xset r rate 400 50 &
+xset r rate 200 100 &
