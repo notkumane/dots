@@ -1,6 +1,5 @@
 #!/bin/bash
 
-#!/bin/bash
 printf "Available drives:\n"
 drives=($(lsblk -dpn | grep -Ev "boot|rpmb|loop" | awk '{print $1}'))
 if [ ${#drives[@]} -eq 0 ]; then
@@ -39,11 +38,13 @@ btrfs subvolume create /mnt/@root
 btrfs subvolume create /mnt/@home
 btrfs subvolume create /mnt/@var
 btrfs subvolume create /mnt/@snapshots
+btrfs subvolume create /mnt/@boot
 umount /mnt
 mount -o subvol=@root "${drive}3" /mnt
-mkdir /mnt/{home,var,.snapshots}
+mkdir /mnt/{home,var,.snapshots,boot}
 mount -o subvol=@home "${drive}3" /mnt/home
 mount -o subvol=@var "${drive}3" /mnt/var
+mount "${drive}1" /mnt/boot
 
 # Prompts for root password, notkeemane password and hostname
 echo "Enter password for root user:"
@@ -148,7 +149,7 @@ xdg-user-dirs ristretto lxappearance zsh neovim exa htop xfce4-i3-workspaces-plu
 
 # Install and configure bootloader
 pacman -S --noconfirm grub efibootmgr
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+grub-install --target=x86_64-efi --efi-directory=/mnt/boot --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
 
 # Set the keymap to fi
