@@ -44,87 +44,60 @@ mount -o subvol=@root "${drive}3" /mnt
 mkdir /mnt/{home,var,.snapshots,boot}
 mount -o subvol=@home "${drive}3" /mnt/home
 mount -o subvol=@var "${drive}3" /mnt/var
-mount "${drive}1" /mnt/boot
+mount -o subvol=@snapshots "${drive}3" /mnt/.snapshots
+mount -o subvol=@boot "${drive}3" /mnt/boot
+mount --mkdir "${drive}1" /mnt/boot/efi
 
-# Prompts for root password, notkeemane password and hostname
-echo "Enter password for root user:"
-read -s ROOT_PASSWD
-
-echo "Enter password for notkeemane user:"
-read -s USER_PASSWD
-
-echo "Enter hostname:"
-read HOSTNAME
-
-pacman -Sy --noconfirm pacman-contrib
-echo "Server = http://mirror.neuf.no/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
-echo "Server = https://ftp.acc.umu.se/mirror/archlinux/\$repo/os/\$arch" >> /etc/pacman.d/mirrorlist
-echo "Server = https://ftp.lysator.liu.se/pub/archlinux/\$repo/os/\$arch" >> /etc/pacman.d/mirrorlist
-echo "Server = https://mirror.sjtu.edu.cn/arch/\$repo/os/\$arch" >> /etc/pacman.d/mirrorlist
-echo "Server = https://ftp.sunet.se/mirror/archlinux/\$repo/os/\$arch" >> /etc/pacman.d/mirrorlist
-echo "Server = https://mirror.23media.com/archlinux/\$repo/os/\$arch" >> /etc/pacman.d/mirrorlist
-echo "Server = https://ftp.portlane.com/pub/os/linux/archlinux/\$repo/os/\$arch" >> /etc/pacman.d/mirrorlist
-echo "Server = https://ftp.gwdg.de/pub/linux/archlinux/\$repo/os/\$arch" >> /etc/pacman.d/mirrorlist
-echo "Server = https://ftp.funet.fi/pub/mirrors/archlinux/\$repo/os/\$arch" >> /etc/pacman.d/mirrorlist
-echo "Server = https://mirrors.lavatech.top/archlinux/\$repo/os/\$arch" >> /etc/pacman.d/mirrorlist
-
-# Enable parallel downloads
-sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
+read -e -p "Please enter your username: " USERNAME
+read -s -e -p "Please enter the password for $USERNAME user: " USER_PASSWD
+echo ""
+read -e -p "Please enter the hostname: " HOSTNAME
+read -s -e -p "Please enter the password for root user: " ROOT_PASSWD
+echo ""
 
 pacstrap /mnt base base-devel linux-zen linux-zen-headers dkms intel-ucode networkmanager linux-firmware
 
-# Generating the fstab file
 genfstab -U /mnt >> /mnt/etc/fstab
 
 arch-chroot /mnt /bin/bash <<EOF
 
-# Set the time zone and hardware clock
 ln -sf /usr/share/zoneinfo/Europe/Helsinki /etc/localtime
 hwclock --systohc
 
-# Set up the locale
 sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
 locale-gen
 echo "LANG=en_US.UTF-8" > /etc/locale.conf
 
-# Set hostname and hosts
 echo "$HOSTNAME" > /etc/hostname
 echo "127.0.0.1    localhost" > /etc/hosts
 echo "::1          localhost" >> /etc/hosts
 echo "127.0.1.1    $HOSTNAME.localdomain    $HOSTNAME" >> /etc/hosts
 
-# Enable NetworkManager
 systemctl enable NetworkManager
 
-# Set root password and create notkeemane user
 echo "root:$ROOT_PASSWD" | chpasswd
-useradd -m -s /bin/bash notkeemane
-echo "notkeemane:$USER_PASSWD" | chpasswd
+useradd -m -s /bin/bash $USERNAME
+echo "$USERNAME:$USER_PASSWD" | chpasswd
 
-# Set up sudo for notkeemane
-echo "notkeemane ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+echo "$USERNAME ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-# Install Git
 pacman -S --needed --noconfirm git
 
-# Build and install yay
 cd /tmp
-sudo -u notkeemane git clone https://aur.archlinux.org/yay.git
+sudo -u $USERNAME git clone https://aur.archlinux.org/yay.git
 cd yay
-sudo -u notkeemane makepkg -si --noconfirm
+sudo -u $USERNAME makepkg -si --noconfirm
 
-# Download configs
 cd /tmp
 git clone https://github.com/notkumane/dots
 cd dots
-cp .xinitrc .xprofile .zshenv /home/notkeemane
-cp -r .zsh /home/notkeemane
-mkdir -p /home/notkeemane/.config/i3
-cp config /home/notkeemane/.config/i3
-cp starship.toml picom.conf /home/notkeemane/.config
+cp .xinitrc .xprofile .zshenv /home/$USERNAME
+cp -r .zsh /home/$USERNAME
+mkdir -p /home/$USERNAME/.config/i3
+cp config /home/$USERNAME/.config/i3
+cp starship.toml picom.conf /home/$USERNAME/.config
 
-# Download ZSH plugin
-cd /home/notkeemane/.zsh
+cd /home/$USERNAME/.zsh
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git
 
 # Enable multilib and sync databases
@@ -144,12 +117,12 @@ yay -S --needed --noconfirm nvidia xorg-server xorg-xinit xorg-xset xorg-xrandr
 
 # Install i3-gaps and other window manager-related packages
 yay -S --needed --noconfirm i3-gaps nitrogen xfce4-panel xfce4-notifyd autotiling \
-brave-bin gnome-screenshot xfce4-terminal thunar xarchiver gvfs unrar picom xdg-utils \
+brave-bin gnome-screenshot terminator thunar xarchiver gvfs unrar picom xdg-utils \
 xdg-user-dirs ristretto lxappearance zsh neovim exa htop xfce4-i3-workspaces-plugin-git starship gamemode ttf-firacode-nerd
 
 # Install and configure bootloader
 pacman -S --noconfirm grub efibootmgr
-grub-install --target=x86_64-efi --efi-directory=/mnt/boot --bootloader-id=GRUB
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
 
 # Set the keymap to fi
@@ -162,7 +135,7 @@ EndSection' | tee /etc/X11/xorg.conf.d/00-keyboard.conf
 # Set the keymap to "fi" in vconsole.conf
 echo "KEYMAP=fi" >> /etc/vconsole.conf
 
-chsh -s $(which zsh) notkeemane
+chsh -s $(which zsh) $USERNAME
 EOF
 
 # Unmount partitions

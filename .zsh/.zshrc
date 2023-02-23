@@ -22,4 +22,4 @@ alias v="sudo nvim"
 alias ls="exa -a -s type --icons --grid"
 alias rr="v ~/.config/i3/config"
 
-source /home/notkeemane/.zsh/syntax-highlighting/zsh-syntax-highlighting.zsh
+source /home/notkeemane/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
