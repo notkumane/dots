@@ -166,12 +166,15 @@ cp .xinitrc .xprofile .zshenv /home/$USERNAME
 cp -r .zsh /home/$USERNAME
 mkdir -p /home/$USERNAME/.config/i3
 cp config /home/$USERNAME/.config/i3
-cp starship.toml picom.conf /home/$USERNAME/.config
+cp starship.toml /home/$USERNAME/.config
+
+# Basic picom.conf
+echo -e "backend = \"glx\";\nvsync = true;\nfade-in-step = 0.03;" > ~/.config/picom.conf
 
 # Install zsh-syntax-highlighting and update zshrc to use it
 cd /home/$USERNAME/.zsh
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git
-sed -i "s/source \/home\/notkeemane\/.zsh\/zsh-syntax-highlighting\/zsh-syntax-highlighting.zsh/source \/home\/$USERNAME\/.zsh\/zsh-syntax-highlighting\/zsh-syntax-highlighting.zsh/g" /home/$USERNAME/.zshrc
+echo "source /home/$USERNAME/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ~/.zsh/.zshrc
 
 # Enable the [multilib] repository in pacman.conf
 sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
@@ -192,7 +195,7 @@ yay -S --needed --noconfirm gamemode steam lutris
 yay -S --needed --noconfirm nvidia xorg-server xorg-xinit xorg-xset xorg-xrandr
 
 # Install window manager and desktop environment
-yay -S --needed --noconfirm i3-gaps nitrogen xfce4-panel xfce4-notifyd gnome-screenshot terminator thunar \
+yay -S --needed --noconfirm i3-gaps nitrogen xfce4-panel xfce4-notifyd gnome-screenshot xfce4-terminal thunar \
 xarchiver gvfs unrar picom xdg-utils xdg-user-dirs ristretto lxappearance xfce4-i3-workspaces-plugin-git \
 autotiling brave-bin xfce4-whiskermenu-plugin-git
 
