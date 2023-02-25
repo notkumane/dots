@@ -195,9 +195,9 @@ yay -S --noconfirm gamemode steam lutris
 
 yay -S --noconfirm nvidia xorg-server xorg-xinit xorg-xset xorg-xrandr
 
-yay -S --noconfirm i3-gaps nitrogen xfce4-panel xfce4-notifyd gnome-screenshot xfce4-terminal thunar \
-xarchiver gvfs unrar picom xdg-utils xdg-user-dirs ristretto lxappearance xfce4-i3-workspaces-plugin-git \
-autotiling brave-bin xfce4-whiskermenu-plugin-git zsh neovim exa htop starship ttf-firacode-nerd
+yay -S --noconfirm plasma-desktop kscreen sddm
+
+systemctl enable sddm dolphin konsole kdeplasma-addons kde-gtk-config brave kate
 
 # Install bootloader
 yay -S --noconfirm grub efibootmgr
