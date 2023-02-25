@@ -106,6 +106,9 @@ read -e -p "Please enter the hostname: " HOSTNAME
 # Prompt the user to enter the password for the root user and store the value in the ROOT_PASSWD variable
 read -s -e -p "Please enter the password for root user: " ROOT_PASSWD
 
+# Enable parallel downloads
+sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
+
 # Install essential packages for a basic Arch Linux system, including the Zen kernel, DKMS, Intel microcode, NetworkManager, and firmware packages
 pacstrap /mnt base base-devel linux-zen linux-zen-headers dkms intel-ucode networkmanager linux-firmware
 
@@ -180,12 +183,8 @@ echo "source /home/$USERNAME/.zsh/zsh-syntax-highlighting/zsh-syntax-highlightin
 sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
 pacman -Sy
 
-# Set up log file for errors and warnings
-logfile="install.log"
-exec &> >(tee -a "$logfile")
-
 # Install packages
-packages=(
+yay -S --noconfirm
   giflib
   lib32-giflib
   libpng
@@ -265,11 +264,6 @@ packages=(
   htop
   starship
   ttf-firacode-nerd
-)
-
-for package in "${packages[@]}"; do
-  yay -S --noconfirm "$package" &>> "$logfile"
-done
 
 # Check for errors and warnings
 echo "Checking for errors and warnings..."
