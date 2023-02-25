@@ -184,95 +184,20 @@ sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
 pacman -Sy
 
 # Install packages
-yay -S --noconfirm
-  giflib
-  lib32-giflib
-  libpng
-  lib32-libpng
-  libldap
-  lib32-libldap
-  gnutls
-  lib32-gnutls
-  mpg123
-  lib32-mpg123
-  openal
-  lib32-openal
-  v4l-utils
-  lib32-v4l-utils
-  libpulse
-  lib32-libpulse
-  libgpg-error
-  lib32-libgpg-error
-  alsa-plugins
-  lib32-alsa-plugins
-  alsa-lib
-  lib32-alsa-lib
-  libjpeg-turbo
-  lib32-libjpeg-turbo
-  sqlite
-  lib32-sqlite
-  libxcomposite
-  lib32-libxcomposite
-  libxinerama
-  lib32-libgcrypt
-  libgcrypt
-  lib32-libxinerama
-  ncurses
-  lib32-ncurses
-  ocl-icd
-  lib32-ocl-icd
-  libxslt
-  lib32-libxslt
-  libva
-  lib32-libva
-  gtk3
-  lib32-gtk3
-  gst-plugins-base-libs
-  lib32-gst-plugins-base-libs
-  vulkan-icd-loader
-  lib32-vulkan-icd-loader
-  gamemode
-  steam
-  lutris
-  nvidia
-  xorg-server
-  xorg-xinit
-  xorg-xset
-  xorg-xrandr
-  i3-gaps
-  nitrogen
-  xfce4-panel
-  xfce4-notifyd
-  gnome-screenshot
-  xfce4-terminal
-  thunar
-  xarchiver
-  gvfs
-  unrar
-  picom
-  xdg-utils
-  xdg-user-dirs
-  ristretto
-  lxappearance
-  xfce4-i3-workspaces-plugin-git
-  autotiling
-  brave-bin
-  xfce4-whiskermenu-plugin-git
-  zsh
-  neovim
-  exa
-  htop
-  starship
-  ttf-firacode-nerd
+yay -S --noconfirm giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls \
+mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse libgpg-error \
+lib32-libgpg-error alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo \
+sqlite lib32-sqlite libxcomposite lib32-libxcomposite libxinerama lib32-libgcrypt libgcrypt lib32-libxinerama \
+ncurses lib32-ncurses ocl-icd lib32-ocl-icd libxslt lib32-libxslt libva lib32-libva gtk3 \
+lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader
 
-# Check for errors and warnings
-echo "Checking for errors and warnings..."
-if grep -qi "error\|warning" "$logfile"; then
-  echo "The following errors or warnings occurred during installation:"
-  grep -i "error\|warning" "$logfile"
-else
-  echo "Installation completed successfully!"
-fi
+yay -S --noconfirm gamemode steam lutris
+
+yay -S --noconfirm nvidia xorg-server xorg-xinit xorg-xset xorg-xrandr
+
+yay -S --noconfirm i3-gaps nitrogen xfce4-panel xfce4-notifyd gnome-screenshot xfce4-terminal thunar \
+xarchiver gvfs unrar picom xdg-utils xdg-user-dirs ristretto lxappearance xfce4-i3-workspaces-plugin-git \
+autotiling brave-bin xfce4-whiskermenu-plugin-git zsh neovim exa htop starship ttf-firacode-nerd
 
 # Install bootloader
 yay -S --noconfirm grub efibootmgr
