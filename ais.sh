@@ -190,14 +190,8 @@ lib32-libgpg-error alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjp
 sqlite lib32-sqlite libxcomposite lib32-libxcomposite libxinerama lib32-libgcrypt libgcrypt lib32-libxinerama \
 ncurses lib32-ncurses ocl-icd lib32-ocl-icd libxslt lib32-libxslt libva lib32-libva gtk3 \
 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader
-
-yay -S --noconfirm gamemode steam lutris
-
-yay -S --noconfirm nvidia xorg-server xorg-xinit xorg-xset xorg-xrandr
-
-yay -S --noconfirm plasma-desktop kscreen sddm
-
-systemctl enable sddm dolphin konsole kdeplasma-addons kde-gtk-config brave kate
+yay -S --noconfirm nvidia xorg-server xorg-xinit xorg-xset xorg-xrandr plasma-desktop kscreen sddm dolphin konsole kdeplasma-addons kde-gtk-config brave kate gamemode steam lutris
+systemctl enable sddm 
 
 # Install bootloader
 yay -S --noconfirm grub efibootmgr
