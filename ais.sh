@@ -141,7 +141,7 @@ systemctl enable NetworkManager
 echo "root:$ROOT_PASSWD" | chpasswd
 
 # Create user and set password
-useradd -m -s /bin/bash $USERNAME
+useradd -m -G wheel,audio,video,optical,storage $USERNAME
 echo "$USERNAME:$USER_PASSWD" | chpasswd
 
 # Allow user to run commands with sudo without a password prompt
@@ -169,38 +169,116 @@ cp config /home/$USERNAME/.config/i3
 cp starship.toml /home/$USERNAME/.config
 
 # Basic picom.conf
-echo -e "backend = \"glx\";\nvsync = true;\nfade-in-step = 0.03;" > ~/.config/picom.conf
+echo -e "backend = \"glx\";\nvsync = true;\nfade-in-step = 0.03;" > /home/$USERNAME/.config/picom.conf
 
 # Install zsh-syntax-highlighting and update zshrc to use it
 cd /home/$USERNAME/.zsh
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git
-echo "source /home/$USERNAME/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ~/.zsh/.zshrc
+echo "source /home/$USERNAME/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> /home/$USERNAME/.zsh/.zshrc
 
 # Enable the [multilib] repository in pacman.conf
 sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
 pacman -Sy
 
-# Install graphics libraries and tools
-yay -S --needed --noconfirm giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls \
-mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse libgpg-error \
-lib32-libgpg-error alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo \
-sqlite lib32-sqlite libxcomposite lib32-libxcomposite libxinerama lib32-libgcrypt libgcrypt lib32-libxinerama \
-ncurses lib32-ncurses ocl-icd lib32-ocl-icd libxslt lib32-libxslt libva lib32-libva gtk3 \
-lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader 
+# Set up log file for errors and warnings
+logfile="install.log"
+exec &> >(tee -a "$logfile")
 
-# Install gaming libraries and tools
-yay -S --needed --noconfirm gamemode steam lutris
+# Install packages
+packages=(
+  giflib
+  lib32-giflib
+  libpng
+  lib32-libpng
+  libldap
+  lib32-libldap
+  gnutls
+  lib32-gnutls
+  mpg123
+  lib32-mpg123
+  openal
+  lib32-openal
+  v4l-utils
+  lib32-v4l-utils
+  libpulse
+  lib32-libpulse
+  libgpg-error
+  lib32-libgpg-error
+  alsa-plugins
+  lib32-alsa-plugins
+  alsa-lib
+  lib32-alsa-lib
+  libjpeg-turbo
+  lib32-libjpeg-turbo
+  sqlite
+  lib32-sqlite
+  libxcomposite
+  lib32-libxcomposite
+  libxinerama
+  lib32-libgcrypt
+  libgcrypt
+  lib32-libxinerama
+  ncurses
+  lib32-ncurses
+  ocl-icd
+  lib32-ocl-icd
+  libxslt
+  lib32-libxslt
+  libva
+  lib32-libva
+  gtk3
+  lib32-gtk3
+  gst-plugins-base-libs
+  lib32-gst-plugins-base-libs
+  vulkan-icd-loader
+  lib32-vulkan-icd-loader
+  gamemode
+  steam
+  lutris
+  nvidia
+  xorg-server
+  xorg-xinit
+  xorg-xset
+  xorg-xrandr
+  i3-gaps
+  nitrogen
+  xfce4-panel
+  xfce4-notifyd
+  gnome-screenshot
+  xfce4-terminal
+  thunar
+  xarchiver
+  gvfs
+  unrar
+  picom
+  xdg-utils
+  xdg-user-dirs
+  ristretto
+  lxappearance
+  xfce4-i3-workspaces-plugin-git
+  autotiling
+  brave-bin
+  xfce4-whiskermenu-plugin-git
+  zsh
+  neovim
+  exa
+  htop
+  starship
+  ttf-firacode-nerd
+)
 
-# Install graphics drivers and Xorg
-yay -S --needed --noconfirm nvidia xorg-server xorg-xinit xorg-xset xorg-xrandr
+for package in "${packages[@]}"; do
+  yay -S --noconfirm "$package" &>> "$logfile"
+done
 
-# Install window manager and desktop environment
-yay -S --needed --noconfirm i3-gaps nitrogen xfce4-panel xfce4-notifyd gnome-screenshot xfce4-terminal thunar \
-xarchiver gvfs unrar picom xdg-utils xdg-user-dirs ristretto lxappearance xfce4-i3-workspaces-plugin-git \
-autotiling brave-bin xfce4-whiskermenu-plugin-git
-
-# Install miscellaneous tools and fonts
-yay -S --needed --noconfirm zsh neovim exa htop starship ttf-firacode-nerd
+# Check for errors and warnings
+echo "Checking for errors and warnings..."
+if grep -qi "error\|warning" "$logfile"; then
+  echo "The following errors or warnings occurred during installation:"
+  grep -i "error\|warning" "$logfile"
+else
+  echo "Installation completed successfully!"
+fi
 
 # Install bootloader
 yay -S --noconfirm grub efibootmgr
@@ -219,6 +297,24 @@ echo "KEYMAP=fi" >> /etc/vconsole.conf
 chsh -s $(which zsh) $USERNAME
 
 EOF
-umount -R /mnt
-reboot
+echo "Installation complete. Do you want to stay in the chroot environment? (y/n)"
+read stay_in_chroot
+
+if [[ "$stay_in_chroot" =~ [yY](es)* ]]; then
+    echo "You are still in the chroot environment. To exit, type 'exit'."
+else
+    echo "Exiting chroot..."
+    exit
+fi
+
+echo "Do you want to reboot now? (y/n)"
+read reboot_confirmation
+
+if [[ "$reboot_confirmation" =~ [yY](es)* ]]; then
+    echo "Unmounting partitions and rebooting..."
+    umount -R /mnt
+    reboot
+else
+    echo "You chose not to reboot. Remember to reboot before using your new system."
+fi
 
