@@ -191,7 +191,10 @@ sqlite lib32-sqlite libxcomposite lib32-libxcomposite libxinerama lib32-libgcryp
 ncurses lib32-ncurses ocl-icd lib32-ocl-icd libxslt lib32-libxslt libva lib32-libva gtk3 \
 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader \
 zsh starship exa gvfs xdg-utils xdg-user-dirs nvidia xorg-server xorg-xinit xorg-xset \
-xorg-xrandr plasma-desktop kscreen sddm dolphin konsole kdeplasma-addons kde-gtk-config kate gamemode steam lutris
+xorg-xrandr kdeconnect ksysguard kde-gtk-config ark kate vlc spectacle kwalletmanager kde-servicemenus-rootactions kbackup\
+plasma-desktop sddm sddm-kcm kdeplasma-addons kde-applications kdebase-dolphin-plugins kdegraphics-thumbnailers kde-gtk-config kde-cli-tools
+
+cd /tmp && git clone https://aur.archlinux.org/brave-bin.git && cd brave-bin && makepkg -si
 
 systemctl enable sddm 
 
@@ -212,24 +215,17 @@ echo "KEYMAP=fi" >> /etc/vconsole.conf
 chsh -s $(which zsh) $USERNAME
 
 EOF
+
 echo "Installation complete. Do you want to stay in the chroot environment? (y/n)"
 read stay_in_chroot
 
 if [[ "$stay_in_chroot" =~ [yY](es)* ]]; then
     echo "You are still in the chroot environment. To exit, type 'exit'."
 else
-    echo "Exiting chroot..."
-    exit
-fi
-
-echo "Do you want to reboot now? (y/n)"
-read reboot_confirmation
-
-if [[ "$reboot_confirmation" =~ [yY](es)* ]]; then
-    echo "Unmounting partitions and rebooting..."
+    echo "Unmounting partitions and restarting the system..."
+    # Unmount all partitions
     umount -R /mnt
+    
+    # Reboot the system
     reboot
-else
-    echo "You chose not to reboot. Remember to reboot before using your new system."
 fi
-
