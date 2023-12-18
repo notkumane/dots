@@ -1,4 +1,4 @@
 ZDOTDIR=$HOME/.zsh
 export EDITOR="nvim"
-export TERMINAL="xfce4-terminal"
+export TERMINAL="terminator"
 export BROWSER="brave"
